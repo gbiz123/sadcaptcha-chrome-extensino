@@ -37,9 +37,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var container = document.documentElement || document.body;
 var apiKey = prompt("Please enter your SadCaptcha license key to enable automatic captcha solving.");
 var corsProxy = "https://corsproxy.io/?";
-var rotateUrl = corsProxy + "https://www.sadcaptcha.com/api/v1/rotate?licenseKey=" + apiKey;
-var puzzleUrl = corsProxy + "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey=" + apiKey;
-var shapesUrl = corsProxy + "https://www.sadcaptcha.com/api/v1/shapes?licenseKey=" + apiKey;
+var rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey=" + apiKey;
+var puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey=" + apiKey;
+var shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey=" + apiKey;
+var apiHeaders = new Headers({ "Content-Type": "application/json" });
 var CaptchaType;
 (function (CaptchaType) {
     CaptchaType[CaptchaType["PUZZLE"] = 0] = "PUZZLE";
@@ -70,6 +71,7 @@ function rotateApiCall(outerB64, innerB64) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, fetch(rotateUrl, {
                         method: "POST",
+                        headers: apiHeaders,
                         body: JSON.stringify({
                             outerImageB64: outerB64,
                             innerImageB64: innerB64
@@ -90,6 +92,7 @@ function puzzleApiCall(puzzleB64, pieceB64) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, fetch(puzzleUrl, {
                         method: "POST",
+                        headers: apiHeaders,
                         body: JSON.stringify({
                             puzzleImageB64: puzzleB64,
                             pieceImageB64: pieceB64
@@ -110,6 +113,7 @@ function shapesApiCall(imageB64) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, fetch(shapesUrl, {
                         method: "POST",
+                        headers: apiHeaders,
                         body: JSON.stringify({
                             imageB64: imageB64
                         })
@@ -161,29 +165,53 @@ function identifyCaptcha() {
 }
 function getRotateOuterImageSource() {
     return __awaiter(this, void 0, void 0, function () {
+        var ele;
         return __generator(this, function (_a) {
-            return [2 /*return*/, document.querySelector("[data-testid=whirl-outer-img]").getAttribute("src")];
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, waitForElm("[data-testid=whirl-outer-img]")];
+                case 1:
+                    ele = _a.sent();
+                    return [2 /*return*/, ele.getAttribute("src")];
+            }
         });
     });
 }
 function getRotateInnerImageSource() {
     return __awaiter(this, void 0, void 0, function () {
+        var ele;
         return __generator(this, function (_a) {
-            return [2 /*return*/, document.querySelector("[data-testid=whirl-inner-img]").getAttribute("src")];
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, waitForElm("[data-testid=whirl-inner-img]")];
+                case 1:
+                    ele = _a.sent();
+                    return [2 /*return*/, ele.getAttribute("src")];
+            }
         });
     });
 }
 function getPuzzleImageSource() {
     return __awaiter(this, void 0, void 0, function () {
+        var ele;
         return __generator(this, function (_a) {
-            return [2 /*return*/, document.querySelector("#captcha-verify-image").getAttribute("src")];
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, waitForElm("#captcha-verify-image")];
+                case 1:
+                    ele = _a.sent();
+                    return [2 /*return*/, ele.getAttribute("src")];
+            }
         });
     });
 }
 function getPieceImageSource() {
     return __awaiter(this, void 0, void 0, function () {
+        var ele;
         return __generator(this, function (_a) {
-            return [2 /*return*/, document.querySelector(".captcha_verify_img_slide").getAttribute("src")];
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, waitForElm(".captcha_verify_img_slide")];
+                case 1:
+                    ele = _a.sent();
+                    return [2 /*return*/, ele.getAttribute("src")];
+            }
         });
     });
 }
@@ -229,6 +257,8 @@ function moveMouseTo(x, y) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             container.dispatchEvent(new MouseEvent("mousemove", {
+                bubbles: true,
+                view: window,
                 clientX: x,
                 clientY: y
             }));
@@ -236,24 +266,53 @@ function moveMouseTo(x, y) {
         });
     });
 }
-function clickMouse(x, y) {
+function dragElementHorizontal(selector, x) {
     return __awaiter(this, void 0, void 0, function () {
+        var ele, box, startX, startY, i;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    container.dispatchEvent(new MouseEvent("mousedown", {
-                        clientX: x,
-                        clientY: y
-                    }));
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 0.07); })];
+                    ele = document.querySelector(selector);
+                    box = ele.getBoundingClientRect();
+                    startX = (box.x + (box.width / 1.337));
+                    startY = (box.y + (box.height / 1.337));
+                    moveMouseTo(startX, startY);
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1.337); })];
                 case 1:
                     _a.sent();
-                    container.dispatchEvent(new MouseEvent("mouseup", {
-                        clientX: x,
-                        clientY: y
+                    ele.dispatchEvent(new MouseEvent("mousedown", {
+                        bubbles: true,
+                        clientX: startX,
+                        clientY: startY
                     }));
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, .1337); })];
+                case 2:
+                    _a.sent();
+                    for (i = 0; i < x; i++) {
+                        ele.dispatchEvent(new MouseEvent("mousemove", {
+                            bubbles: true,
+                            movementX: 1,
+                            movementY: 0
+                        }));
+                    }
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, .1337); })];
+                case 3:
+                    _a.sent();
+                    ele.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
                     return [2 /*return*/];
             }
+        });
+    });
+}
+function clickMouse(element, x, y) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            element.dispatchEvent(new MouseEvent("click", {
+                bubbles: true,
+                clientX: x,
+                clientY: y
+            }));
+            return [2 /*return*/];
         });
     });
 }
@@ -266,7 +325,7 @@ function clickCenterOfElement(element) {
                     rect = element.getBoundingClientRect();
                     x = rect.x + (rect.width / 2);
                     y = rect.y + (rect.height / 2);
-                    return [4 /*yield*/, clickMouse(x, y)];
+                    return [4 /*yield*/, clickMouse(element, x, y)];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
@@ -274,22 +333,37 @@ function clickCenterOfElement(element) {
         });
     });
 }
-function clickProportional(boundingBox, proportionX, proportionY) {
+function clickProportional(element, proportionX, proportionY) {
     return __awaiter(this, void 0, void 0, function () {
-        var xOrigin, yOrigin, xOffset, yOffset;
+        var boundingBox, xOrigin, yOrigin, xOffset, yOffset, x, y;
         return __generator(this, function (_a) {
+            boundingBox = element.getBoundingClientRect();
             xOrigin = boundingBox.x;
             yOrigin = boundingBox.y;
             xOffset = (proportionX * boundingBox.width);
             yOffset = (proportionY * boundingBox.height);
-            clickMouse(xOrigin + xOffset, yOrigin + yOffset);
+            x = xOrigin + xOffset;
+            y = yOrigin + yOffset;
+            clickMouse(element, x, y);
             return [2 /*return*/];
+        });
+    });
+}
+function computeRotateSlideDistance(angle) {
+    return __awaiter(this, void 0, void 0, function () {
+        var slidebar, slideLength, slideIcon, iconLength;
+        return __generator(this, function (_a) {
+            slidebar = document.querySelector(".captcha_verify_slide--slidebar");
+            slideLength = slidebar.getBoundingClientRect().width;
+            slideIcon = document.querySelector(".secsdk-captcha-drag-icon");
+            iconLength = slideIcon.getBoundingClientRect().width;
+            return [2 /*return*/, ((slideLength - iconLength) * angle) / 360];
         });
     });
 }
 function solveShapes() {
     return __awaiter(this, void 0, void 0, function () {
-        var src, img, res, ele, rect, submitButton;
+        var src, img, res, ele, submitButton;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, getShapesImageSource()];
@@ -302,12 +376,11 @@ function solveShapes() {
                 case 3:
                     res = _a.sent();
                     ele = document.querySelector("#captcha-verify-image");
-                    rect = ele.getBoundingClientRect();
-                    clickProportional(rect, res.pointOneProportionX, res.pointOneProportionY);
+                    clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY);
                     return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1.337); })];
                 case 4:
                     _a.sent();
-                    clickProportional(rect, res.pointTwoProportionX, res.pointTwoProportionY);
+                    clickProportional(ele, res.pointTwoProportionX, res.pointTwoProportionY);
                     return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 0.91337); })];
                 case 5:
                     _a.sent();
@@ -321,13 +394,44 @@ function solveShapes() {
         });
     });
 }
+function solveRotate() {
+    return __awaiter(this, void 0, void 0, function () {
+        var outerSrc, innerSrc, outerImg, innerImg, solution, distance;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, getRotateOuterImageSource()];
+                case 1:
+                    outerSrc = _a.sent();
+                    return [4 /*yield*/, getRotateInnerImageSource()];
+                case 2:
+                    innerSrc = _a.sent();
+                    return [4 /*yield*/, fetchImageBase64(outerSrc)];
+                case 3:
+                    outerImg = _a.sent();
+                    return [4 /*yield*/, fetchImageBase64(innerSrc)];
+                case 4:
+                    innerImg = _a.sent();
+                    return [4 /*yield*/, rotateApiCall(outerImg, innerImg)];
+                case 5:
+                    solution = _a.sent();
+                    return [4 /*yield*/, computeRotateSlideDistance(solution)];
+                case 6:
+                    distance = _a.sent();
+                    return [4 /*yield*/, dragElementHorizontal(".secsdk-captcha-drag-icon", distance)];
+                case 7:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 waitForElm("#captcha_container").then(function (ele) {
     identifyCaptcha().then(function (captchaType) {
         switch (captchaType) {
             case CaptchaType.PUZZLE:
                 alert("Puzzle");
             case CaptchaType.ROTATE:
-                alert("Rotate");
+                solveRotate();
             case CaptchaType.SHAPES:
                 solveShapes();
         }
