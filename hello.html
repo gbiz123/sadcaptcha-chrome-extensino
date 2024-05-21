@@ -1,5 +1,93 @@
 <html>
-	<body>
-		<h1>Hello Extensions</h1>
-	</body>
+
+<body>
+	<div class="description-section">
+		<div class="row-item">
+			<h1>TikTok Captcha Solver</h1>
+		</div>
+
+		<div class="row-item">
+			<h2>Instructions</h2>
+			<ul>
+				<li>Sign up on <a href="https://www.sadcaptcha.com?ref=extension" target="_blank">our website</a> for a
+					free trial</li>
+				<li>Log in to your account</li>
+				<li>Copy your key while logged in to the dashboard</li>
+				<li>Visit tiktok.com, and you will be prompted to enter your key</li>
+				<li>Copy and paste your key</li>
+			</ul>
+			<p>
+				After entering your key, all TikTok captchas will be solved automatically.
+			</p>
+		</div>
+
+		<div class="row-item">
+			<h2>About SadCaptcha</h2>
+			<p>
+				SadCaptcha is a product of Toughdata LLC, based in El Cajon, CA.
+				SadCaptcha is a paid tool, offering a free trial of 25 solutions.
+			</p>
+		</div>
+	</div>
+</body>
+
+<style>
+	body {
+		width: 500px;
+		font-family: "Inter", sans-serif;
+		background: #2A2C2D;
+		color: #FFF;
+		padding: 10px;
+	}
+
+	.description-section::before {
+		content: "";
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		border-radius: 299px;
+		background: linear-gradient(84deg, #009CF4 -1.01%, #D000E7 51.41%, #FA0012 99.13%);
+		opacity: 0.5;
+		filter: blur(265px);
+		width: 300px;
+		height: 300px;
+		z-index: -1;
+	}
+
+	.description-section {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.description-section a {
+		color: cyan;
+	}
+
+	.description-section li {
+		font-size: 16px;
+		line-height: 150%;
+	}
+
+	.description-section p {
+		font-size: 16px;
+		line-height: 150%;
+	}
+
+	.row-item {
+		border-bottom: 1px solid gray;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.row-item a {
+		margin-top: 10px;
+		margin-bottom: 10px;
+		justify-self: center;
+	}
+</style>
+
 </html>

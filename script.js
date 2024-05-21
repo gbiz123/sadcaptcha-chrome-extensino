@@ -35,19 +35,45 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var container = document.documentElement || document.body;
-var apiKey = prompt("Please enter your SadCaptcha license key to enable automatic captcha solving.");
+var apiKey = retrieveOrPromptApiKey();
+localStorage.setItem("sadCaptchaKey", apiKey);
 var corsProxy = "https://corsproxy.io/?";
 var rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey=" + apiKey;
 var puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey=" + apiKey;
 var shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey=" + apiKey;
 var apiHeaders = new Headers({ "Content-Type": "application/json" });
+var successXpath = "xpath=//*[contains(text(), 'Verification complete')]";
+var captchaWrappers = [
+    "div#captcha_container",
+    "div.captcha_verify_container",
+    "#verify-points",
+    ".captcha_verify_action"
+];
+var rotateSelectors = [
+    "[data-testid=whirl-inner-img]",
+    "[data-testid=whirl-outer-img]"
+];
+var puzzleSelectors = [
+    "img.captcha_verify_img_slide"
+];
+var shapesSelectors = [
+    ".verify-captcha-submit-button"
+];
 var CaptchaType;
 (function (CaptchaType) {
     CaptchaType[CaptchaType["PUZZLE"] = 0] = "PUZZLE";
     CaptchaType[CaptchaType["ROTATE"] = 1] = "ROTATE";
     CaptchaType[CaptchaType["SHAPES"] = 2] = "SHAPES";
 })(CaptchaType || (CaptchaType = {}));
-function waitForElm(selector) {
+function retrieveOrPromptApiKey() {
+    if (localStorage.getItem("sadCaptchaKey") === null) {
+        return prompt("Please enter your SadCaptcha license key to enable automatic captcha solving.");
+    }
+    else {
+        return localStorage.getItem("sadCaptchaKey");
+    }
+}
+function waitForElement(selector) {
     return new Promise(function (resolve) {
         if (document.querySelector(selector)) {
             return resolve(document.querySelector(selector));
@@ -56,6 +82,29 @@ function waitForElm(selector) {
             if (document.querySelector(selector)) {
                 observer.disconnect();
                 return resolve(document.querySelector(selector));
+            }
+        });
+        observer.observe(container, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
+function waitForElementInList(selectors) {
+    return new Promise(function (resolve) {
+        for (var _i = 0, selectors_1 = selectors; _i < selectors_1.length; _i++) {
+            var selector = selectors_1[_i];
+            if (document.querySelector(selector)) {
+                return resolve(document.querySelector(selector));
+            }
+        }
+        var observer = new MutationObserver(function (mutations) {
+            for (var _i = 0, selectors_2 = selectors; _i < selectors_2.length; _i++) {
+                var selector = selectors_2[_i];
+                if (document.querySelector(selector)) {
+                    observer.disconnect();
+                    return resolve(document.querySelector(selector));
+                }
             }
         });
         observer.observe(container, {
@@ -133,6 +182,16 @@ function shapesApiCall(imageB64) {
         });
     });
 }
+function anySelectorInListPresent(selectors) {
+    for (var _i = 0, selectors_3 = selectors; _i < selectors_3.length; _i++) {
+        var selector = selectors_3[_i];
+        var ele = document.querySelector(selector);
+        if (ele !== null) {
+            return true;
+        }
+    }
+    return false;
+}
 function identifyCaptcha() {
     return __awaiter(this, void 0, void 0, function () {
         var i;
@@ -143,13 +202,13 @@ function identifyCaptcha() {
                     _a.label = 1;
                 case 1:
                     if (!(i < 15)) return [3 /*break*/, 7];
-                    if (!(document.querySelector("[data-testid=whirl-inner-img]") !== null)) return [3 /*break*/, 2];
+                    if (!anySelectorInListPresent(rotateSelectors)) return [3 /*break*/, 2];
                     return [2 /*return*/, CaptchaType.ROTATE];
                 case 2:
-                    if (!(document.querySelector("img.captcha_verify_img_slide") !== null)) return [3 /*break*/, 3];
+                    if (!anySelectorInListPresent(puzzleSelectors)) return [3 /*break*/, 3];
                     return [2 /*return*/, CaptchaType.PUZZLE];
                 case 3:
-                    if (!(document.querySelector("#verify-points") !== null)) return [3 /*break*/, 4];
+                    if (!anySelectorInListPresent(shapesSelectors)) return [3 /*break*/, 4];
                     return [2 /*return*/, CaptchaType.SHAPES];
                 case 4: return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 2000); })];
                 case 5:
@@ -168,7 +227,7 @@ function getRotateOuterImageSource() {
         var ele;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, waitForElm("[data-testid=whirl-outer-img]")];
+                case 0: return [4 /*yield*/, waitForElement("[data-testid=whirl-outer-img]")];
                 case 1:
                     ele = _a.sent();
                     return [2 /*return*/, ele.getAttribute("src")];
@@ -181,7 +240,7 @@ function getRotateInnerImageSource() {
         var ele;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, waitForElm("[data-testid=whirl-inner-img]")];
+                case 0: return [4 /*yield*/, waitForElement("[data-testid=whirl-inner-img]")];
                 case 1:
                     ele = _a.sent();
                     return [2 /*return*/, ele.getAttribute("src")];
@@ -194,7 +253,7 @@ function getPuzzleImageSource() {
         var ele;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, waitForElm("#captcha-verify-image")];
+                case 0: return [4 /*yield*/, waitForElement("#captcha-verify-image")];
                 case 1:
                     ele = _a.sent();
                     return [2 /*return*/, ele.getAttribute("src")];
@@ -207,7 +266,7 @@ function getPieceImageSource() {
         var ele;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, waitForElm(".captcha_verify_img_slide")];
+                case 0: return [4 /*yield*/, waitForElement(".captcha_verify_img_slide")];
                 case 1:
                     ele = _a.sent();
                     return [2 /*return*/, ele.getAttribute("src")];
@@ -220,7 +279,7 @@ function getShapesImageSource() {
         var ele;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, waitForElm("#captcha-verify-image")];
+                case 0: return [4 /*yield*/, waitForElement("#captcha-verify-image")];
                 case 1:
                     ele = _a.sent();
                     return [2 /*return*/, ele.getAttribute("src")];
@@ -274,10 +333,10 @@ function dragElementHorizontal(selector, x) {
                 case 0:
                     ele = document.querySelector(selector);
                     box = ele.getBoundingClientRect();
-                    startX = (box.x + (box.width / 1.337));
-                    startY = (box.y + (box.height / 1.337));
+                    startX = (box.x + (box.width / 133.7));
+                    startY = (box.y + (box.height / 133.7));
                     moveMouseTo(startX, startY);
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1.337); })];
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 133.7); })];
                 case 1:
                     _a.sent();
                     ele.dispatchEvent(new MouseEvent("mousedown", {
@@ -285,18 +344,27 @@ function dragElementHorizontal(selector, x) {
                         clientX: startX,
                         clientY: startY
                     }));
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, .1337); })];
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 133.7); })];
                 case 2:
                     _a.sent();
-                    for (i = 0; i < x; i++) {
-                        ele.dispatchEvent(new MouseEvent("mousemove", {
-                            bubbles: true,
-                            movementX: 1,
-                            movementY: 0
-                        }));
-                    }
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, .1337); })];
+                    i = 0;
+                    _a.label = 3;
                 case 3:
+                    if (!(i < x)) return [3 /*break*/, 6];
+                    ele.dispatchEvent(new MouseEvent("mousemove", {
+                        bubbles: true,
+                        movementX: 1,
+                        movementY: 0
+                    }));
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1.337); })];
+                case 4:
+                    _a.sent();
+                    _a.label = 5;
+                case 5:
+                    i++;
+                    return [3 /*break*/, 3];
+                case 6: return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 133.7); })];
+                case 7:
                     _a.sent();
                     ele.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
                     return [2 /*return*/];
@@ -361,79 +429,199 @@ function computeRotateSlideDistance(angle) {
         });
     });
 }
-function solveShapes() {
+function computePuzzleSlideDistance(proportionX) {
     return __awaiter(this, void 0, void 0, function () {
-        var src, img, res, ele, submitButton;
+        var image;
+        return __generator(this, function (_a) {
+            image = document.querySelector("#captcha-verify-image");
+            return [2 /*return*/, image.getBoundingClientRect().width * proportionX];
+        });
+    });
+}
+function checkCaptchaSuccess() {
+    return __awaiter(this, void 0, void 0, function () {
+        var i;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, getShapesImageSource()];
+                case 0:
+                    i = 0;
+                    _a.label = 1;
                 case 1:
+                    if (!(i < 20)) return [3 /*break*/, 5];
+                    if (!(document.evaluate(successXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue !== null)) return [3 /*break*/, 2];
+                    return [2 /*return*/, true];
+                case 2: return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1000); })];
+                case 3:
+                    _a.sent();
+                    _a.label = 4;
+                case 4:
+                    i++;
+                    return [3 /*break*/, 1];
+                case 5: return [2 /*return*/, false];
+            }
+        });
+    });
+}
+function solveShapes() {
+    return __awaiter(this, void 0, void 0, function () {
+        var i, src, img, res, ele, submitButton;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    i = 0;
+                    _a.label = 1;
+                case 1:
+                    if (!(i < 3)) return [3 /*break*/, 10];
+                    return [4 /*yield*/, getShapesImageSource()];
+                case 2:
                     src = _a.sent();
                     return [4 /*yield*/, fetchImageBase64(src)];
-                case 2:
+                case 3:
                     img = _a.sent();
                     return [4 /*yield*/, shapesApiCall(img)];
-                case 3:
+                case 4:
                     res = _a.sent();
                     ele = document.querySelector("#captcha-verify-image");
                     clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY);
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1.337); })];
-                case 4:
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
+                case 5:
                     _a.sent();
                     clickProportional(ele, res.pointTwoProportionX, res.pointTwoProportionY);
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 0.91337); })];
-                case 5:
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 2337); })];
+                case 6:
                     _a.sent();
                     submitButton = document.querySelector(".verify-captcha-submit-button");
                     clickCenterOfElement(submitButton);
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1.337); })];
-                case 6:
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
+                case 7:
                     _a.sent();
-                    return [2 /*return*/];
+                    return [4 /*yield*/, checkCaptchaSuccess()];
+                case 8:
+                    if (_a.sent())
+                        return [2 /*return*/];
+                    _a.label = 9;
+                case 9:
+                    i++;
+                    return [3 /*break*/, 1];
+                case 10: return [2 /*return*/];
             }
         });
     });
 }
 function solveRotate() {
     return __awaiter(this, void 0, void 0, function () {
-        var outerSrc, innerSrc, outerImg, innerImg, solution, distance;
+        var i, outerSrc, innerSrc, outerImg, innerImg, solution, distance;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, getRotateOuterImageSource()];
+                case 0:
+                    i = 0;
+                    _a.label = 1;
                 case 1:
+                    if (!(i < 3)) return [3 /*break*/, 11];
+                    return [4 /*yield*/, getRotateOuterImageSource()];
+                case 2:
                     outerSrc = _a.sent();
                     return [4 /*yield*/, getRotateInnerImageSource()];
-                case 2:
+                case 3:
                     innerSrc = _a.sent();
                     return [4 /*yield*/, fetchImageBase64(outerSrc)];
-                case 3:
+                case 4:
                     outerImg = _a.sent();
                     return [4 /*yield*/, fetchImageBase64(innerSrc)];
-                case 4:
+                case 5:
                     innerImg = _a.sent();
                     return [4 /*yield*/, rotateApiCall(outerImg, innerImg)];
-                case 5:
+                case 6:
                     solution = _a.sent();
                     return [4 /*yield*/, computeRotateSlideDistance(solution)];
-                case 6:
+                case 7:
                     distance = _a.sent();
                     return [4 /*yield*/, dragElementHorizontal(".secsdk-captcha-drag-icon", distance)];
+                case 8:
+                    _a.sent();
+                    return [4 /*yield*/, checkCaptchaSuccess()];
+                case 9:
+                    if (_a.sent())
+                        return [2 /*return*/];
+                    _a.label = 10;
+                case 10:
+                    i++;
+                    return [3 /*break*/, 1];
+                case 11: return [2 /*return*/];
+            }
+        });
+    });
+}
+function solvePuzzle() {
+    return __awaiter(this, void 0, void 0, function () {
+        var i, puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, distance;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    i = 0;
+                    _a.label = 1;
+                case 1:
+                    if (!(i < 3)) return [3 /*break*/, 11];
+                    return [4 /*yield*/, getPuzzleImageSource()];
+                case 2:
+                    puzzleSrc = _a.sent();
+                    return [4 /*yield*/, getPieceImageSource()];
+                case 3:
+                    pieceSrc = _a.sent();
+                    return [4 /*yield*/, fetchImageBase64(puzzleSrc)];
+                case 4:
+                    puzzleImg = _a.sent();
+                    return [4 /*yield*/, fetchImageBase64(pieceSrc)];
+                case 5:
+                    pieceImg = _a.sent();
+                    return [4 /*yield*/, puzzleApiCall(puzzleImg, pieceImg)];
+                case 6:
+                    solution = _a.sent();
+                    return [4 /*yield*/, computePuzzleSlideDistance(solution)];
                 case 7:
+                    distance = _a.sent();
+                    return [4 /*yield*/, dragElementHorizontal(".secsdk-captcha-drag-icon", distance)];
+                case 8:
+                    _a.sent();
+                    return [4 /*yield*/, checkCaptchaSuccess()];
+                case 9:
+                    if (_a.sent())
+                        return [2 /*return*/];
+                    _a.label = 10;
+                case 10:
+                    i++;
+                    return [3 /*break*/, 1];
+                case 11: return [2 /*return*/];
+            }
+        });
+    });
+}
+function solveCaptchaLoop() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    waitForElementInList(captchaWrappers).then(function (_) {
+                        identifyCaptcha().then(function (captchaType) {
+                            switch (captchaType) {
+                                case CaptchaType.PUZZLE:
+                                    solvePuzzle();
+                                case CaptchaType.ROTATE:
+                                    solveRotate();
+                                case CaptchaType.SHAPES:
+                                    solveShapes();
+                            }
+                        });
+                    });
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 30000); })];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, solveCaptchaLoop()];
+                case 2:
                     _a.sent();
                     return [2 /*return*/];
             }
         });
     });
 }
-waitForElm("#captcha_container").then(function (ele) {
-    identifyCaptcha().then(function (captchaType) {
-        switch (captchaType) {
-            case CaptchaType.PUZZLE:
-                alert("Puzzle");
-            case CaptchaType.ROTATE:
-                solveRotate();
-            case CaptchaType.SHAPES:
-                solveShapes();
-        }
-    });
-});
+solveCaptchaLoop();
