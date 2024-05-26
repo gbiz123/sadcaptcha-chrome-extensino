@@ -236,8 +236,8 @@ async function dragElementHorizontal(selector: string, x: number): Promise<void>
 		ele.dispatchEvent(
 			new MouseEvent("mousemove", {
 				bubbles: true,
-				movementX: 1,
-				movementY: 0
+				clientX: startX + i,
+				clientY: startY
 			})
 		)
 		await new Promise(r => setTimeout(r, 1.337));
