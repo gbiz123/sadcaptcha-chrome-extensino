@@ -42,7 +42,7 @@ var rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey=" + apiKey;
 var puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey=" + apiKey;
 var shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey=" + apiKey;
 var apiHeaders = new Headers({ "Content-Type": "application/json" });
-var successXpath = "xpath=//*[contains(text(), 'Verification complete')]";
+var successXpath = "//*[contains(text(), 'Verification complete')]";
 var captchaWrappers = [
     "div#captcha_container",
     "div.captcha_verify_container",
@@ -353,8 +353,8 @@ function dragElementHorizontal(selector, x) {
                     if (!(i < x)) return [3 /*break*/, 6];
                     ele.dispatchEvent(new MouseEvent("mousemove", {
                         bubbles: true,
-                        movementX: 1,
-                        movementY: 0
+                        clientX: startX + i,
+                        clientY: startY
                     }));
                     return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1.337); })];
                 case 4:
