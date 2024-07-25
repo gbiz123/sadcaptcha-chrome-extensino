@@ -2,14 +2,15 @@
 	"manifest_version": 3,
 	"name": "TikTok Captcha Solver",
 	"description": "Automatically bypass any TikTok rotate, puzzle, or shapes captcha",
-	"version": "1.1",
+	"version": "1.3",
 	"action": {
 		"default_popup": "hello.html",
 		"default_icon": "logo_icon_black_bg.png"
 	},
 	"content_scripts": [
 		{
-			"matches": ["https://*.tiktok.com/*"],
+			"matches": ["https://www.tiktok.com/*"],
+			"all_frames": false,
 			"js": ["script.js"]
 		}
 	],
