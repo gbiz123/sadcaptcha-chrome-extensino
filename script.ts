@@ -16,10 +16,7 @@ const apiHeaders = new Headers({ "Content-Type": "application/json" })
 const successXpath = "//*[contains(text(), 'Verification complete')]"
 
 const captchaWrappers: Array<string> = [
-	"div#captcha_container",
-	"div.captcha_verify_container",
-	"#verify-points",
-	".captcha_verify_action"
+	".captcha-disable-scroll"
 ]
 
 const rotateSelectors: Array<string> = [
