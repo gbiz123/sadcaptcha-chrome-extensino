@@ -589,31 +589,38 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             });
         });
     }
+    var isCurrentSolve;
     function solveCaptchaLoop() {
         return __awaiter(this, void 0, void 0, function () {
+            var _, captchaType;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        waitForElement(captchaWrapper).then(function (_) {
-                            identifyCaptcha().then(function (captchaType) {
-                                switch (captchaType) {
-                                    case CaptchaType.PUZZLE:
-                                        solvePuzzle();
-                                        break;
-                                    case CaptchaType.ROTATE:
-                                        solveRotate();
-                                        break;
-                                    case CaptchaType.SHAPES:
-                                        solveShapes();
-                                        break;
-                                }
-                            });
-                        });
-                        return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 30000); })];
+                    case 0: return [4 /*yield*/, waitForElement(captchaWrapper)];
                     case 1:
-                        _a.sent();
-                        return [4 /*yield*/, solveCaptchaLoop()];
+                        _ = _a.sent();
+                        return [4 /*yield*/, identifyCaptcha()];
                     case 2:
+                        captchaType = _a.sent();
+                        if (!isCurrentSolve) {
+                            isCurrentSolve = true;
+                            switch (captchaType) {
+                                case CaptchaType.PUZZLE:
+                                    solvePuzzle();
+                                    break;
+                                case CaptchaType.ROTATE:
+                                    solveRotate();
+                                    break;
+                                case CaptchaType.SHAPES:
+                                    solveShapes();
+                                    break;
+                            }
+                        }
+                        return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 30000); })];
+                    case 3:
+                        _a.sent();
+                        isCurrentSolve = false;
+                        return [4 /*yield*/, solveCaptchaLoop()];
+                    case 4:
                         _a.sent();
                         return [2 /*return*/];
                 }
