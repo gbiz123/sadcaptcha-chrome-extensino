@@ -1,5 +1,5 @@
 (function() {
-	
+
 	// Avoid multiple instances running: 
 	if ((window as any).hasRun === true)
 		return true;
@@ -351,23 +351,27 @@
 		}
 	}
 
+	let isCurrentSolve: boolean
+
 	async function solveCaptchaLoop() {
-		waitForElement(captchaWrapper).then(_ => {
-			identifyCaptcha().then(captchaType => {
-				switch (captchaType) {
-					case CaptchaType.PUZZLE:
-						solvePuzzle()
-						break
-					case CaptchaType.ROTATE:
-						solveRotate()
-						break
-					case CaptchaType.SHAPES:
-						solveShapes()
-						break
-				}
-			})
-		})
+		const _: Element = await waitForElement(captchaWrapper)
+		const captchaType: CaptchaType = await identifyCaptcha()
+		if (!isCurrentSolve) {
+			isCurrentSolve = true
+			switch (captchaType) {
+				case CaptchaType.PUZZLE:
+					solvePuzzle()
+					break
+				case CaptchaType.ROTATE:
+					solveRotate()
+					break
+				case CaptchaType.SHAPES:
+					solveShapes()
+					break
+			}
+		}
 		await new Promise(r => setTimeout(r, 30000));
+		isCurrentSolve = false
 		await solveCaptchaLoop()
 	}
 
