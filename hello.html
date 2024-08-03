@@ -13,8 +13,13 @@
 					free trial</li>
 				<li>Log in to your account</li>
 				<li>Copy your key while logged in to the dashboard</li>
-				<li>Visit tiktok.com, and you will be prompted to enter your key</li>
-				<li>Copy and paste your key</li>
+				<li>Enter your API key below and press "submit"</li>
+				<li class="no-bullet">
+					<div class="user-input">
+						<input type="text" id="apiKeyInput" placeholder="Enter API key">
+						<button id="sendApiKey">Submit</button>
+					</div>
+				</li>
 			</ul>
 			<p>
 				After entering your key, all TikTok captchas will be solved automatically.
@@ -29,7 +34,11 @@
 			</p>
 		</div>
 	</div>
+
 </body>
+
+<script src="ext_script.js"></script>
+
 
 <style>
 	body {
@@ -87,6 +96,15 @@
 		margin-top: 10px;
 		margin-bottom: 10px;
 		justify-self: center;
+	}
+
+	.user-input {
+		display: flex;
+		flex-direction: ;
+	}
+
+	li.no-bullet {
+		list-style-type: none;
 	}
 </style>
 

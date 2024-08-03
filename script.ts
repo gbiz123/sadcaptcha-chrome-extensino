@@ -7,16 +7,23 @@
 
 	const container: Element = document.documentElement || document.body
 
-	const apiKey = retrieveOrPromptApiKey()
-	localStorage.setItem("sadCaptchaKey", apiKey)
+	// Api key is passed from extension via message
+	let apiKey : string;
+	chrome.runtime.onMessage.addListener(
+		function(request, sender, sendResponse) {
+			if (request.apiKey !== null) {
+				alert("Api key set")
+				console.log("Api key: "  + request.apiKey) 
+				apiKey = request.apiKey
+			}
+		}
+	)
+
+	let rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey="
+	let puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey="
+	let shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey="
 
 	const corsProxy = "https://corsproxy.io/?"
-
-	const rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey=" + apiKey
-
-	const puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey=" + apiKey
-
-	const shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey=" + apiKey
 
 	const apiHeaders = new Headers({ "Content-Type": "application/json" })
 
@@ -50,14 +57,6 @@
 		SHAPES
 	}
 
-	function retrieveOrPromptApiKey(): string {
-		if (localStorage.getItem("sadCaptchaKey") === null) {
-			return prompt("Please enter your SadCaptcha license key to enable automatic captcha solving.")
-		} else {
-			return localStorage.getItem("sadCaptchaKey")
-		}
-	}
-
 	function waitForElement(selector: string): Promise<Element> {
 		return new Promise(resolve => {
 			if (document.querySelector(selector)) {
@@ -78,32 +77,8 @@
 		})
 	}
 
-	function waitForElementInList(selectors: Array<string>): Promise<Element> {
-		return new Promise(resolve => {
-			for (const selector of selectors) {
-				if (document.querySelector(selector)) {
-					return resolve(document.querySelector(selector)!)
-				}
-			}
-
-			const observer: MutationObserver = new MutationObserver(mutations => {
-				for (const selector of selectors) {
-					if (document.querySelector(selector)) {
-						observer.disconnect()
-						return resolve(document.querySelector(selector)!)
-					}
-				}
-			})
-
-			observer.observe(container, {
-				childList: true,
-				subtree: true
-			})
-		})
-	}
-
 	async function rotateApiCall(outerB64: string, innerB64: string): Promise<number> {
-		let resp = await fetch(rotateUrl, {
+		let resp = await fetch(rotateUrl + apiKey, {
 			method: "POST",
 			headers: apiHeaders,
 			body: JSON.stringify({
@@ -115,7 +90,7 @@
 	}
 
 	async function puzzleApiCall(puzzleB64: string, pieceB64: string): Promise<number> {
-		let resp = await fetch(puzzleUrl, {
+		let resp = await fetch(puzzleUrl + apiKey, {
 			method: "POST",
 			headers: apiHeaders,
 			body: JSON.stringify({
@@ -127,7 +102,7 @@
 	}
 
 	async function shapesApiCall(imageB64: string): Promise<ShapesCaptchaResponse> {
-		let resp = await fetch(shapesUrl, {
+		let resp = await fetch(shapesUrl + apiKey, {
 			method: "POST",
 			headers: apiHeaders,
 			body: JSON.stringify({

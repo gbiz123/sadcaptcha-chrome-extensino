@@ -40,12 +40,19 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         return true;
     window.hasRun = true;
     var container = document.documentElement || document.body;
-    var apiKey = retrieveOrPromptApiKey();
-    localStorage.setItem("sadCaptchaKey", apiKey);
+    // Api key is passed from extension via message
+    var apiKey;
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        if (request.apiKey !== null) {
+            alert("Api key set");
+            console.log("Api key: " + request.apiKey);
+            apiKey = request.apiKey;
+        }
+    });
+    var rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey=";
+    var puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey=";
+    var shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey=";
     var corsProxy = "https://corsproxy.io/?";
-    var rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey=" + apiKey;
-    var puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey=" + apiKey;
-    var shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey=" + apiKey;
     var apiHeaders = new Headers({ "Content-Type": "application/json" });
     var successXpath = "//*[contains(text(), 'Verification complete')]";
     var captchaWrapper = ".captcha-disable-scroll";
@@ -65,14 +72,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         CaptchaType[CaptchaType["ROTATE"] = 1] = "ROTATE";
         CaptchaType[CaptchaType["SHAPES"] = 2] = "SHAPES";
     })(CaptchaType || (CaptchaType = {}));
-    function retrieveOrPromptApiKey() {
-        if (localStorage.getItem("sadCaptchaKey") === null) {
-            return prompt("Please enter your SadCaptcha license key to enable automatic captcha solving.");
-        }
-        else {
-            return localStorage.getItem("sadCaptchaKey");
-        }
-    }
     function waitForElement(selector) {
         return new Promise(function (resolve) {
             if (document.querySelector(selector)) {
@@ -92,35 +91,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             }
         });
     }
-    function waitForElementInList(selectors) {
-        return new Promise(function (resolve) {
-            for (var _i = 0, selectors_1 = selectors; _i < selectors_1.length; _i++) {
-                var selector = selectors_1[_i];
-                if (document.querySelector(selector)) {
-                    return resolve(document.querySelector(selector));
-                }
-            }
-            var observer = new MutationObserver(function (mutations) {
-                for (var _i = 0, selectors_2 = selectors; _i < selectors_2.length; _i++) {
-                    var selector = selectors_2[_i];
-                    if (document.querySelector(selector)) {
-                        observer.disconnect();
-                        return resolve(document.querySelector(selector));
-                    }
-                }
-            });
-            observer.observe(container, {
-                childList: true,
-                subtree: true
-            });
-        });
-    }
     function rotateApiCall(outerB64, innerB64) {
         return __awaiter(this, void 0, void 0, function () {
             var resp;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, fetch(rotateUrl, {
+                    case 0: return [4 /*yield*/, fetch(rotateUrl + apiKey, {
                             method: "POST",
                             headers: apiHeaders,
                             body: JSON.stringify({
@@ -141,7 +117,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             var resp;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, fetch(puzzleUrl, {
+                    case 0: return [4 /*yield*/, fetch(puzzleUrl + apiKey, {
                             method: "POST",
                             headers: apiHeaders,
                             body: JSON.stringify({
@@ -162,7 +138,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             var resp, data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, fetch(shapesUrl, {
+                    case 0: return [4 /*yield*/, fetch(shapesUrl + apiKey, {
                             method: "POST",
                             headers: apiHeaders,
                             body: JSON.stringify({
@@ -185,8 +161,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         });
     }
     function anySelectorInListPresent(selectors) {
-        for (var _i = 0, selectors_3 = selectors; _i < selectors_3.length; _i++) {
-            var selector = selectors_3[_i];
+        for (var _i = 0, selectors_1 = selectors; _i < selectors_1.length; _i++) {
+            var selector = selectors_1[_i];
             var ele = document.querySelector(selector);
             if (ele !== null) {
                 return true;
