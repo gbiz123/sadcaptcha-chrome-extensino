@@ -63,6 +63,14 @@ interface Request {
 		SHAPES
 	}
 
+	function retrieveOrPromptApiKey(): string {
+		if (localStorage.getItem("sadCaptchaKey") === null) {
+			return prompt("Please enter your SadCaptcha license key to enable automatic captcha solving.")
+		} else {
+			return localStorage.getItem("sadCaptchaKey")
+		}
+	}
+
 	function waitForElement(selector: string): Promise<Element> {
 		return new Promise(resolve => {
 			if (document.querySelector(selector)) {
