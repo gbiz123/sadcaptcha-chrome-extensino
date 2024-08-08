@@ -41,11 +41,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     window.hasRun = true;
     var container = document.documentElement || document.body;
     // Api key is passed from extension via message
-    var apiKey;
+    var apiKey = localStorage.getItem("sadCaptchaKey");
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.apiKey !== null) {
             console.log("Api key: " + request.apiKey);
             apiKey = request.apiKey;
+            localStorage.setItem("sadCaptchaKey", apiKey);
             sendResponse({ message: "API key set.", success: 1 });
         }
         else {
