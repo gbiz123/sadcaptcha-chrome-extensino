@@ -12,12 +12,13 @@ interface Request {
 	const container: Element = document.documentElement || document.body
 
 	// Api key is passed from extension via message
-	let apiKey : string;
+	let apiKey : string  = localStorage.getItem("sadCaptchaKey");
 	chrome.runtime.onMessage.addListener(
 		function(request: Request, sender, sendResponse) {
 			if (request.apiKey !== null) {
 				console.log("Api key: "  + request.apiKey) 
 				apiKey = request.apiKey
+				localStorage.setItem("sadCaptchaKey", apiKey)
 				sendResponse({message: "API key set.", success: 1})
 			} else {
 				sendResponse({message: "API key cannot be empty.", success: 0})
@@ -61,14 +62,6 @@ interface Request {
 		PUZZLE,
 		ROTATE,
 		SHAPES
-	}
-
-	function retrieveOrPromptApiKey(): string {
-		if (localStorage.getItem("sadCaptchaKey") === null) {
-			return prompt("Please enter your SadCaptcha license key to enable automatic captcha solving.")
-		} else {
-			return localStorage.getItem("sadCaptchaKey")
-		}
 	}
 
 	function waitForElement(selector: string): Promise<Element> {
