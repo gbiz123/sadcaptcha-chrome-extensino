@@ -54,6 +54,12 @@ function sendApiKeyToContentScript() {
                     return [4 /*yield*/, chrome.tabs.sendMessage(tabId, { apiKey: apiKey })];
                 case 2:
                     response = _a.sent();
+                    if (response.success === 1) {
+                        alert("API key set successfully. Now, captchas will be solved automatically.");
+                    }
+                    else {
+                        alert("Something went wrong: " + response.message);
+                    }
                     return [3 /*break*/, 4];
                 case 3:
                     console.log("tabId was undefined");

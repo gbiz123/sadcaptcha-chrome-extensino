@@ -1,3 +1,7 @@
+interface Request {
+	apiKey: string
+}
+
 (function() {
 
 	// Avoid multiple instances running: 
@@ -10,11 +14,13 @@
 	// Api key is passed from extension via message
 	let apiKey : string;
 	chrome.runtime.onMessage.addListener(
-		function(request, sender, sendResponse) {
+		function(request: Request, sender, sendResponse) {
 			if (request.apiKey !== null) {
-				alert("Api key set")
 				console.log("Api key: "  + request.apiKey) 
 				apiKey = request.apiKey
+				sendResponse({message: "API key set.", success: 1})
+			} else {
+				sendResponse({message: "API key cannot be empty.", success: 0})
 			}
 		}
 	)
