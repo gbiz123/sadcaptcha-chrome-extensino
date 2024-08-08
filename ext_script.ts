@@ -1,5 +1,10 @@
 const sendApiKey = document.getElementById("sendApiKey")!
 
+interface Response {
+	message: string,
+	success: number
+}
+
 async function sendApiKeyToContentScript() {
 	console.log("ummm")
 	const apiKeyInput = <HTMLInputElement> document.getElementById("apiKeyInput")!
@@ -9,7 +14,12 @@ async function sendApiKeyToContentScript() {
 		let tabId = tab.id
 		if (tabId !== undefined) {
 			console.log("Sending api key: " + apiKey)
-			const response = await chrome.tabs.sendMessage(tabId, { apiKey: apiKey});
+			const response: Response = await chrome.tabs.sendMessage(tabId, { apiKey: apiKey});
+			if (response.success === 1) {
+				alert("API key set successfully. Now, captchas will be solved automatically.")
+			} else {
+				alert("Something went wrong: " + response.message)
+			}
 		} else {
 			console.log("tabId was undefined")
 		}

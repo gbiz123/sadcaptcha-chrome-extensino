@@ -44,9 +44,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     var apiKey;
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.apiKey !== null) {
-            alert("Api key set");
             console.log("Api key: " + request.apiKey);
             apiKey = request.apiKey;
+            sendResponse({ message: "API key set.", success: 1 });
+        }
+        else {
+            sendResponse({ message: "API key cannot be empty.", success: 0 });
         }
     });
     var rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey=";
