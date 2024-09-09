@@ -56,6 +56,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     var rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey=";
     var puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey=";
     var shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey=";
+    var iconUrl = "https://www.sadcaptcha.com/api/v1/icon?licenseKey=";
     var corsProxy = "https://corsproxy.io/?";
     var apiHeaders = new Headers({ "Content-Type": "application/json" });
     var successXpath = "//*[contains(text(), 'Verification complete')]";
@@ -75,6 +76,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         CaptchaType[CaptchaType["PUZZLE"] = 0] = "PUZZLE";
         CaptchaType[CaptchaType["ROTATE"] = 1] = "ROTATE";
         CaptchaType[CaptchaType["SHAPES"] = 2] = "SHAPES";
+        CaptchaType[CaptchaType["ICON"] = 3] = "ICON";
     })(CaptchaType || (CaptchaType = {}));
     function waitForElement(selector) {
         return new Promise(function (resolve) {
@@ -164,6 +166,29 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             });
         });
     }
+    function iconApiCall(challenge, imageB64) {
+        return __awaiter(this, void 0, void 0, function () {
+            var resp, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, fetch(iconUrl + apiKey, {
+                            method: "POST",
+                            headers: apiHeaders,
+                            body: JSON.stringify({
+                                challenge: challenge,
+                                imageB64: imageB64
+                            })
+                        })];
+                    case 1:
+                        resp = _a.sent();
+                        return [4 /*yield*/, resp.json()];
+                    case 2:
+                        data = _a.sent();
+                        return [2 /*return*/, data];
+                }
+            });
+        });
+    }
     function anySelectorInListPresent(selectors) {
         for (var _i = 0, selectors_1 = selectors; _i < selectors_1.length; _i++) {
             var selector = selectors_1[_i];
@@ -176,30 +201,39 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
     function identifyCaptcha() {
         return __awaiter(this, void 0, void 0, function () {
-            var i;
+            var i, imgUrl;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         i = 0;
                         _a.label = 1;
                     case 1:
-                        if (!(i < 15)) return [3 /*break*/, 7];
+                        if (!(i < 15)) return [3 /*break*/, 8];
                         if (!anySelectorInListPresent(rotateSelectors)) return [3 /*break*/, 2];
                         return [2 /*return*/, CaptchaType.ROTATE];
                     case 2:
                         if (!anySelectorInListPresent(puzzleSelectors)) return [3 /*break*/, 3];
                         return [2 /*return*/, CaptchaType.PUZZLE];
                     case 3:
-                        if (!anySelectorInListPresent(shapesSelectors)) return [3 /*break*/, 4];
-                        return [2 /*return*/, CaptchaType.SHAPES];
-                    case 4: return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 2000); })];
-                    case 5:
-                        _a.sent();
-                        _a.label = 6;
+                        if (!anySelectorInListPresent(shapesSelectors)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, getShapesImageSource()];
+                    case 4:
+                        imgUrl = _a.sent();
+                        if (imgUrl.includes("/icon")) {
+                            return [2 /*return*/, CaptchaType.ICON];
+                        }
+                        else {
+                            return [2 /*return*/, CaptchaType.SHAPES];
+                        }
+                        return [3 /*break*/, 7];
+                    case 5: return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 2000); })];
                     case 6:
+                        _a.sent();
+                        _a.label = 7;
+                    case 7:
                         i++;
                         return [3 /*break*/, 1];
-                    case 7: throw new Error("Could not identify CaptchaType");
+                    case 8: throw new Error("Could not identify CaptchaType");
                 }
             });
         });
@@ -569,6 +603,50 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             });
         });
     }
+    function solveIcon() {
+        return __awaiter(this, void 0, void 0, function () {
+            var src, img, challenge, res, ele, _i, _a, point, submitButton;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, getShapesImageSource()];
+                    case 1:
+                        src = _b.sent();
+                        return [4 /*yield*/, fetchImageBase64(src)];
+                    case 2:
+                        img = _b.sent();
+                        challenge = document.querySelector(".captcha_verify_bar").textContent;
+                        return [4 /*yield*/, iconApiCall(challenge, img)];
+                    case 3:
+                        res = _b.sent();
+                        ele = document.querySelector("#captcha-verify-image");
+                        _i = 0, _a = res.proportionalPoints;
+                        _b.label = 4;
+                    case 4:
+                        if (!(_i < _a.length)) return [3 /*break*/, 7];
+                        point = _a[_i];
+                        clickProportional(ele, point.proportionX, point.proportionY);
+                        return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
+                    case 5:
+                        _b.sent();
+                        _b.label = 6;
+                    case 6:
+                        _i++;
+                        return [3 /*break*/, 4];
+                    case 7:
+                        submitButton = document.querySelector(".verify-captcha-submit-button");
+                        clickCenterOfElement(submitButton);
+                        return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
+                    case 8:
+                        _b.sent();
+                        return [4 /*yield*/, checkCaptchaSuccess()];
+                    case 9:
+                        if (_b.sent())
+                            return [2 /*return*/];
+                        return [2 /*return*/];
+                }
+            });
+        });
+    }
     var isCurrentSolve;
     function solveCaptchaLoop() {
         return __awaiter(this, void 0, void 0, function () {
@@ -592,6 +670,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                                     break;
                                 case CaptchaType.SHAPES:
                                     solveShapes();
+                                    break;
+                                case CaptchaType.ICON:
+                                    solveIcon();
                                     break;
                             }
                         }

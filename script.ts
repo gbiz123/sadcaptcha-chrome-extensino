@@ -12,16 +12,16 @@ interface Request {
 	const container: Element = document.documentElement || document.body
 
 	// Api key is passed from extension via message
-	let apiKey : string  = localStorage.getItem("sadCaptchaKey");
+	let apiKey: string = localStorage.getItem("sadCaptchaKey");
 	chrome.runtime.onMessage.addListener(
 		function(request: Request, sender, sendResponse) {
 			if (request.apiKey !== null) {
-				console.log("Api key: "  + request.apiKey) 
+				console.log("Api key: " + request.apiKey)
 				apiKey = request.apiKey
 				localStorage.setItem("sadCaptchaKey", apiKey)
-				sendResponse({message: "API key set.", success: 1})
+				sendResponse({ message: "API key set.", success: 1 })
 			} else {
-				sendResponse({message: "API key cannot be empty.", success: 0})
+				sendResponse({ message: "API key cannot be empty.", success: 0 })
 			}
 		}
 	)
@@ -29,6 +29,7 @@ interface Request {
 	let rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey="
 	let puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey="
 	let shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey="
+	let iconUrl = "https://www.sadcaptcha.com/api/v1/icon?licenseKey="
 
 	const corsProxy = "https://corsproxy.io/?"
 
@@ -58,10 +59,20 @@ interface Request {
 		pointTwoProportionY: number
 	}
 
+	type ProportionalPoint = {
+		proportionX: number
+		proportionY: number
+	}
+
+	type IconCaptchaResponse = {
+		proportionalPoints: Array<ProportionalPoint>
+	}
+
 	enum CaptchaType {
 		PUZZLE,
 		ROTATE,
-		SHAPES
+		SHAPES,
+		ICON
 	}
 
 	function waitForElement(selector: string): Promise<Element> {
@@ -125,6 +136,19 @@ interface Request {
 		}
 	}
 
+	async function iconApiCall(challenge: string, imageB64: string): Promise<IconCaptchaResponse> {
+		let resp = await fetch(iconUrl + apiKey, {
+			method: "POST",
+			headers: apiHeaders,
+			body: JSON.stringify({
+				challenge: challenge,
+				imageB64: imageB64
+			})
+		})
+		let data = await resp.json()		
+		return data
+	}
+
 	function anySelectorInListPresent(selectors: Array<string>): boolean {
 		for (const selector of selectors) {
 			let ele = document.querySelector(selector)
@@ -137,14 +161,20 @@ interface Request {
 
 	async function identifyCaptcha(): Promise<CaptchaType> {
 		for (let i = 0; i < 15; i++) {
-			if (anySelectorInListPresent(rotateSelectors))
+			if (anySelectorInListPresent(rotateSelectors)) {
 				return CaptchaType.ROTATE
-			else if (anySelectorInListPresent(puzzleSelectors))
+			} else if (anySelectorInListPresent(puzzleSelectors)) {
 				return CaptchaType.PUZZLE
-			else if (anySelectorInListPresent(shapesSelectors))
-				return CaptchaType.SHAPES
-			else
+			} else if (anySelectorInListPresent(shapesSelectors)) {
+				let imgUrl: string = await getShapesImageSource()
+				if (imgUrl.includes("/icon")) {
+					return CaptchaType.ICON
+				} else {
+					return CaptchaType.SHAPES
+				}
+			} else {
 				await new Promise(r => setTimeout(r, 2000));
+			}
 		}
 		throw new Error("Could not identify CaptchaType")
 	}
@@ -288,7 +318,6 @@ interface Request {
 	}
 
 	async function solveShapes(): Promise<void> {
-		// for (let i = 0; i < 3; i++) {
 		let src = await getShapesImageSource()
 		let img = await fetchImageBase64(src)
 		let res = await shapesApiCall(img)
@@ -302,7 +331,6 @@ interface Request {
 		await new Promise(r => setTimeout(r, 1337));
 		if (await checkCaptchaSuccess())
 			return;
-		// }
 	}
 
 	async function solveRotate(): Promise<void> {
@@ -333,6 +361,24 @@ interface Request {
 		}
 	}
 
+	async function solveIcon(): Promise<void> {
+		let src = await getShapesImageSource()
+		let img = await fetchImageBase64(src)
+		let challenge: string = document.querySelector(".captcha_verify_bar").textContent
+		let res = await iconApiCall(challenge, img)
+		let ele = document.querySelector("#captcha-verify-image")
+		for (const point of res.proportionalPoints) {
+			clickProportional(ele, point.proportionX, point.proportionY)
+			await new Promise(r => setTimeout(r, 1337));
+		}
+		let submitButton = document.querySelector(".verify-captcha-submit-button")
+		clickCenterOfElement(submitButton)
+		await new Promise(r => setTimeout(r, 1337));
+		if (await checkCaptchaSuccess())
+			return;
+	}
+
+
 	let isCurrentSolve: boolean
 
 	async function solveCaptchaLoop() {
@@ -349,6 +395,9 @@ interface Request {
 					break
 				case CaptchaType.SHAPES:
 					solveShapes()
+					break
+				case CaptchaType.ICON:
+					solveIcon()
 					break
 			}
 		}
