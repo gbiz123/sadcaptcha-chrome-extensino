@@ -145,7 +145,7 @@ interface Request {
 				imageB64: imageB64
 			})
 		})
-		let data = await resp.json()		
+		let data = await resp.json()
 		return data
 	}
 
@@ -318,19 +318,21 @@ interface Request {
 	}
 
 	async function solveShapes(): Promise<void> {
-		let src = await getShapesImageSource()
-		let img = await fetchImageBase64(src)
-		let res = await shapesApiCall(img)
-		let ele = document.querySelector("#captcha-verify-image")
-		clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY)
-		await new Promise(r => setTimeout(r, 1337));
-		clickProportional(ele, res.pointTwoProportionX, res.pointTwoProportionY)
-		await new Promise(r => setTimeout(r, 2337));
-		let submitButton = document.querySelector(".verify-captcha-submit-button")
-		clickCenterOfElement(submitButton)
-		await new Promise(r => setTimeout(r, 1337));
-		if (await checkCaptchaSuccess())
-			return;
+		for (let i = 0; i < 3; i++) {
+			let src = await getShapesImageSource()
+			let img = await fetchImageBase64(src)
+			let res = await shapesApiCall(img)
+			let ele = document.querySelector("#captcha-verify-image")
+			clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY)
+			await new Promise(r => setTimeout(r, 1337));
+			clickProportional(ele, res.pointTwoProportionX, res.pointTwoProportionY)
+			await new Promise(r => setTimeout(r, 2337));
+			let submitButton = document.querySelector(".verify-captcha-submit-button")
+			clickCenterOfElement(submitButton)
+			await new Promise(r => setTimeout(r, 1337));
+			if (await checkCaptchaSuccess())
+				return;
+		}
 	}
 
 	async function solveRotate(): Promise<void> {
@@ -362,20 +364,22 @@ interface Request {
 	}
 
 	async function solveIcon(): Promise<void> {
-		let src = await getShapesImageSource()
-		let img = await fetchImageBase64(src)
-		let challenge: string = document.querySelector(".captcha_verify_bar").textContent
-		let res = await iconApiCall(challenge, img)
-		let ele = document.querySelector("#captcha-verify-image")
-		for (const point of res.proportionalPoints) {
-			clickProportional(ele, point.proportionX, point.proportionY)
+		for (let i = 0; i < 3; i++) {
+			let src = await getShapesImageSource()
+			let img = await fetchImageBase64(src)
+			let challenge: string = document.querySelector(".captcha_verify_bar").textContent
+			let res = await iconApiCall(challenge, img)
+			let ele = document.querySelector("#captcha-verify-image")
+			for (const point of res.proportionalPoints) {
+				clickProportional(ele, point.proportionX, point.proportionY)
+				await new Promise(r => setTimeout(r, 1337));
+			}
+			let submitButton = document.querySelector(".verify-captcha-submit-button")
+			clickCenterOfElement(submitButton)
 			await new Promise(r => setTimeout(r, 1337));
+			if (await checkCaptchaSuccess())
+				return;
 		}
-		let submitButton = document.querySelector(".verify-captcha-submit-button")
-		clickCenterOfElement(submitButton)
-		await new Promise(r => setTimeout(r, 1337));
-		if (await checkCaptchaSuccess())
-			return;
 	}
 
 
