@@ -22,7 +22,7 @@ interface Request {
 				sendResponse({ message: "API key set.", success: 1 })
 			} else {
 				sendResponse({ message: "API key cannot be empty.", success: 0 })
-			}
+			} 
 		}
 	)
 

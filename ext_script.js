@@ -47,9 +47,6 @@ function sendApiKeyToContentScript() {
                     return [4 /*yield*/, chrome.tabs.query({ active: true, lastFocusedWindow: true })];
                 case 1:
                     tab = (_b.sent())[0];
-                    if (!((_a = tab.url) === null || _a === void 0 ? void 0 : _a.includes("tiktok"))) {
-                        alert("Please go to the TikTok website and then enter your key.");
-                    }
                     if (!(apiKeyInput !== null)) return [3 /*break*/, 5];
                     apiKey = apiKeyInput.value;
                     tabId = tab.id;
@@ -63,6 +60,9 @@ function sendApiKeyToContentScript() {
                     }
                     else {
                         alert("Something went wrong: " + response.message);
+                    }
+                    if (!((_a = tab.url) === null || _a === void 0 ? void 0 : _a.includes("tiktok"))) {
+                        alert("Please go to the TikTok website before entering your key.");
                     }
                     return [3 /*break*/, 4];
                 case 3:
