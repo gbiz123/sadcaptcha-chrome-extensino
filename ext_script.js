@@ -38,14 +38,18 @@ var sendApiKey = document.getElementById("sendApiKey");
 function sendApiKeyToContentScript() {
     return __awaiter(this, void 0, void 0, function () {
         var apiKeyInput, tab, apiKey, tabId, response;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
                     console.log("ummm");
                     apiKeyInput = document.getElementById("apiKeyInput");
                     return [4 /*yield*/, chrome.tabs.query({ active: true, lastFocusedWindow: true })];
                 case 1:
-                    tab = (_a.sent())[0];
+                    tab = (_b.sent())[0];
+                    if (!((_a = tab.url) === null || _a === void 0 ? void 0 : _a.includes("tiktok"))) {
+                        alert("Please go to the TikTok website and then enter your key.");
+                    }
                     if (!(apiKeyInput !== null)) return [3 /*break*/, 5];
                     apiKey = apiKeyInput.value;
                     tabId = tab.id;
@@ -53,7 +57,7 @@ function sendApiKeyToContentScript() {
                     console.log("Sending api key: " + apiKey);
                     return [4 /*yield*/, chrome.tabs.sendMessage(tabId, { apiKey: apiKey })];
                 case 2:
-                    response = _a.sent();
+                    response = _b.sent();
                     if (response.success === 1) {
                         alert("API key set successfully. Now, captchas will be solved automatically.");
                     }
@@ -63,11 +67,11 @@ function sendApiKeyToContentScript() {
                     return [3 /*break*/, 4];
                 case 3:
                     console.log("tabId was undefined");
-                    _a.label = 4;
+                    _b.label = 4;
                 case 4: return [3 /*break*/, 6];
                 case 5:
                     console.log("apiKeyInput was null");
-                    _a.label = 6;
+                    _b.label = 6;
                 case 6: return [2 /*return*/];
             }
         });
