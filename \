@@ -36,64 +36,64 @@ interface Request {
 	const successXpath = "//*[contains(text(), 'Verification complete')]"
 	const captchaWrapper: string = ".captcha-disable-scroll"
 
-	const Wrappers = {
-		V1: ".captcha-disable-scroll",
-		V2: ".captcha-verify-container"
+	class Wrappers {
+		V1 = ".captcha-disable-scroll"
+		V2 = ".captcha-verify-container"
 	}
 
-	const RotateV1 = {
-		INNER: "[data-testid=whirl-inner-img]",
-		OUTER: "[data-testid=whirl-outer-img]",
-		SLIDE_BAR: ".captcha_verify_slide--slidebar",
-		SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
-		UNIQUE_IDENTIFIER: ".captcha-disable-scroll [data-testid=whirl-inner-img]"
+	class RotateV1 {
+		INNER = "[data-testid=whirl-inner-img]"
+		OUTER = "[data-testid=whirl-outer-img]"
+		SLIDE_BAR = ".captcha_verify_slide--slidebar"
+		SLIDER_DRAG_BUTTON = ".secsdk-captcha-drag-icon"
+		UNIQUE_IDENTIFIER = ".captcha-disable-scroll [data-testid=whirl-inner-img]"
 	}
 
-	const RotateV2 = {
-		INNER: ".captcha-verify-container > div > div > div > img.cap-absolute",
-		OUTER: ".captcha-verify-container > div > div > div > img:first-child",
-		SLIDE_BAR: ".captcha-verify-container > div > div > div.cap-w-full > div.cap-rounded-full",
-		SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
-		UNIQUE_IDENTIFIER: ".captcha-verify-container > div > div > div > img.cap-absolute"
+	class RotateV2 {
+		INNER = ".captcha-verify-container > div > div > div > img.cap-absolute"
+		OUTER = ".captcha-verify-container > div > div > div > img:first-child"
+		SLIDE_BAR = ".captcha-verify-container > div > div > div.cap-w-full > div.cap-rounded-full"
+		SLIDER_DRAG_BUTTON = ".secsdk-captcha-drag-icon"
+		UNIQUE_IDENTIFIER = ".captcha-verify-container > div > div > div > img.cap-absolute"
 	}
 
-	const PuzzleV1 = {
-		PIECE: "img.captcha_verify_img_slide",
-		PUZZLE: "#captcha-verify-image",
-		SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
-		UNIQUE_IDENTIFIER: ".captcha-disable-scroll img.captcha_verify_img_slide"
+	class PuzzleV1 {
+		PIECE = "img.captcha_verify_img_slide"
+		PUZZLE = "#captcha-verify-image"
+		SLIDER_DRAG_BUTTON = ".secsdk-captcha-drag-icon"
+		UNIQUE_IDENTIFIER = ".captcha-disable-scroll img.captcha_verify_img_slide"
 	}
 
-	const PuzzleV2 = {
-		PIECE: ".captcha-verify-container .cap-absolute img",
-		PUZZLE: "#captcha-verify-image",
-		SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
-		UNIQUE_IDENTIFIER: ".captcha-verify-container #captcha-verify-image"
+	class PuzzleV2 {
+		PIECE = ".captcha-verify-container .cap-absolute img"
+		PUZZLE = "#captcha-verify-image"
+		SLIDER_DRAG_BUTTON = ".secsdk-captcha-drag-icon"
+		UNIQUE_IDENTIFIER = ".captcha-verify-container #captcha-verify-image"
 	}
 
-	const ShapesV1 = {
-		IMAGE: "#captcha-verify-image",
-		SUBMIT_BUTTON: ".verify-captcha-submit-button" ,
-		UNIQUE_IDENTIFIER: ".captcha-disable-scroll .verify-captcha-submit-button"
+	class ShapesV1 {
+		IMAGE = "#captcha-verify-image"
+		SUBMIT_BUTTON = ".verify-captcha-submit-button" 
+		UNIQUE_IDENTIFIER = ".captcha-disable-scroll .verify-captcha-submit-button"
 	}
 
-	const ShapesV2 = {
-		IMAGE: ".captcha-verify-container div.cap-relative img",
-		SUBMIT_BUTTON: ".captcha-verify-container .cap-relative button.cap-w-full" ,
-		UNIQUE_IDENTIFIER: ".captcha-verify-container .cap-relative button.cap-w-full" 
+	class ShapesV2 {
+		IMAGE = ".captcha-verify-container div.cap-relative img"
+		SUBMIT_BUTTON = ".captcha-verify-container .cap-relative button.cap-w-full" 
+		UNIQUE_IDENTIFIER = ".captcha-verify-container .cap-relative button.cap-w-full" 
 	}
 
-	const IconV1 = {
-		IMAGE: "#captcha-verify-image",
-		SUBMIT_BUTTON: ".verify-captcha-submit-button" ,
-		TEXT: ".captcha_verify_bar",
-		UNIQUE_IDENTIFIER: ".captcha-disable-scroll .verify-captcha-submit-button"
+	class IconV1 {
+		IMAGE = "#captcha-verify-image"
+		SUBMIT_BUTTON = ".verify-captcha-submit-button" 
+		TEXT = ".captcha_verify_bar"
+		UNIQUE_IDENTIFIER = ".captcha-disable-scroll .verify-captcha-submit-button"
 	}
 
-	const IconV2 = {
-		IMAGE: ".captcha-verify-container div.cap-relative img",
-		SUBMIT_BUTTON: ".captcha-verify-container .cap-relative button.cap-w-full" ,
-		TEXT: ".captcha-verify-container > div > div > span"
+	class IconV2 {
+		IMAGE = ".captcha-verify-container div.cap-relative img"
+		SUBMIT_BUTTON = ".captcha-verify-container .cap-relative button.cap-w-full" 
+		TEXT = ".captcha-verify-container > div > div > span"
 	}
 
 	type ShapesCaptchaResponse = {
@@ -208,38 +208,47 @@ interface Request {
 	}
 
 	async function identifyCaptcha(): Promise<CaptchaType> {
-		for (let i = 0; i < 30; i++) {
-			if (anySelectorInListPresent([RotateV1.UNIQUE_IDENTIFIER])) {
+		for (let i = 0; i < 15; i++) {
+			if (anySelectorInListPresent(rotateSelectors)) {
 				return CaptchaType.ROTATE_V1
-			} else if (anySelectorInListPresent([PuzzleV1.UNIQUE_IDENTIFIER])) {
-				return CaptchaType.PUZZLE_V1
-			} else if (anySelectorInListPresent([ShapesV1.UNIQUE_IDENTIFIER])) {
-				let imgUrl: string = await getImageSource(ShapesV2.IMAGE)
+			} else if (anySelectorInListPresent(puzzleSelectors)) {
+				return CaptchaType.PUZZLE_v1
+			} else if (anySelectorInListPresent(shapesSelectors)) {
+				let imgUrl: string = await getShapesImageSource()
 				if (imgUrl.includes("/icon")) {
 					return CaptchaType.ICON_V1
 				} else {
 					return CaptchaType.SHAPES_V1
 				}
-			} else if (anySelectorInListPresent([RotateV2.UNIQUE_IDENTIFIER])) {
-				return CaptchaType.ROTATE_V2
-			} else if (anySelectorInListPresent([PuzzleV2.UNIQUE_IDENTIFIER])) {
-				return CaptchaType.PUZZLE_V2
-			} else if (anySelectorInListPresent([ShapesV2.UNIQUE_IDENTIFIER])) {
-				let imgUrl: string = await getImageSource(ShapesV2.IMAGE)
-				if (imgUrl.includes("/icon")) {
-					return CaptchaType.ICON_V2
-				} else {
-					return CaptchaType.SHAPES_V2
-				}
 			} else {
-				await new Promise(r => setTimeout(r, 1000));
+				await new Promise(r => setTimeout(r, 2000));
 			}
 		}
 		throw new Error("Could not identify CaptchaType")
 	}
 
-	async function getImageSource(selector: string): Promise<string> {
-		let ele = await waitForElement(selector)
+	async function getRotateOuterImageSource(): Promise<string> {
+		let ele = await waitForElement("[data-testid=whirl-outer-img]")
+		return ele.getAttribute("src")
+	}
+
+	async function getRotateInnerImageSource(): Promise<string> {
+		let ele = await waitForElement("[data-testid=whirl-inner-img]")
+		return ele.getAttribute("src")
+	}
+
+	async function getPuzzleImageSource(): Promise<string> {
+		let ele = await waitForElement("#captcha-verify-image")
+		return ele.getAttribute("src")
+	}
+
+	async function getPieceImageSource(): Promise<string> {
+		let ele = await waitForElement(".captcha_verify_img_slide")
+		return ele.getAttribute("src")
+	}
+
+	async function getShapesImageSource(): Promise<string> {
+		let ele = await waitForElement("#captcha-verify-image")
 		return ele.getAttribute("src")
 	}
 
@@ -327,14 +336,17 @@ interface Request {
 		clickMouse(element, x, y)
 	}
 
-	async function computeRotateSlideDistance(angle: number, slideBarEle: Element, slideIconEle: Element): Promise<number> {
-		let slideLength = slideBarEle.getBoundingClientRect().width
-		let iconLength = slideIconEle.getBoundingClientRect().width
+	async function computeRotateSlideDistance(angle: number): Promise<number> {
+		let slidebar = document.querySelector(".captcha_verify_slide--slidebar")
+		let slideLength = slidebar.getBoundingClientRect().width
+		let slideIcon = document.querySelector(".secsdk-captcha-drag-icon")
+		let iconLength = slideIcon.getBoundingClientRect().width
 		return ((slideLength - iconLength) * angle) / 360
 	}
 
-	async function computePuzzleSlideDistance(proportionX: number, puzzleImageEle: Element): Promise<number> {
-		return puzzleImageEle.getBoundingClientRect().width * proportionX
+	async function computePuzzleSlideDistance(proportionX: number): Promise<number> {
+		let image = document.querySelector("#captcha-verify-image")
+		return image.getBoundingClientRect().width * proportionX
 	}
 
 	async function checkCaptchaSuccess(): Promise<boolean> {
@@ -353,17 +365,17 @@ interface Request {
 		return false
 	}
 
-	async function solveShapesV1(): Promise<void> {
+	async function solveShapes(): Promise<void> {
 		for (let i = 0; i < 3; i++) {
-			let src = await getImageSource(ShapesV1.IMAGE)
+			let src = await getShapesImageSource()
 			let img = await fetchImageBase64(src)
 			let res = await shapesApiCall(img)
-			let ele = document.querySelector(ShapesV1.IMAGE)
+			let ele = document.querySelector("#captcha-verify-image")
 			clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY)
 			await new Promise(r => setTimeout(r, 1337));
 			clickProportional(ele, res.pointTwoProportionX, res.pointTwoProportionY)
 			await new Promise(r => setTimeout(r, 2337));
-			let submitButton = document.querySelector(ShapesV1.SUBMIT_BUTTON)
+			let submitButton = document.querySelector(".verify-captcha-submit-button")
 			clickCenterOfElement(submitButton)
 			await new Promise(r => setTimeout(r, 1337));
 			if (await checkCaptchaSuccess())
@@ -371,98 +383,46 @@ interface Request {
 		}
 	}
 
-	async function solveShapesV2(): Promise<void> {
+	async function solveRotate(): Promise<void> {
 		for (let i = 0; i < 3; i++) {
-			let src = await getImageSource(ShapesV2.IMAGE)
-			let img = await fetchImageBase64(src)
-			let res = await shapesApiCall(img)
-			let ele = document.querySelector(ShapesV2.IMAGE)
-			clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY)
-			await new Promise(r => setTimeout(r, 1337));
-			clickProportional(ele, res.pointTwoProportionX, res.pointTwoProportionY)
-			await new Promise(r => setTimeout(r, 2337));
-			let submitButton = document.querySelector(ShapesV2.SUBMIT_BUTTON)
-			clickCenterOfElement(submitButton)
-			await new Promise(r => setTimeout(r, 1337));
-			if (await checkCaptchaSuccess())
-				return;
-		}
-	}
-
-	async function solveRotateV1(): Promise<void> {
-		for (let i = 0; i < 3; i++) {
-			let outerSrc = await getImageSource(RotateV1.OUTER)
-			let innerSrc = await getImageSource(RotateV1.INNER)
+			let outerSrc = await getRotateOuterImageSource()
+			let innerSrc = await getRotateInnerImageSource()
 			let outerImg = await fetchImageBase64(outerSrc)
 			let innerImg = await fetchImageBase64(innerSrc)
 			let solution = await rotateApiCall(outerImg, innerImg)
-			let slideBar = document.querySelector(RotateV1.SLIDE_BAR)
-			let slideButton = document.querySelector(RotateV1.SLIDER_DRAG_BUTTON)
-			let distance = await computeRotateSlideDistance(solution, slideBar, slideButton)
-			await dragElementHorizontal(RotateV1.SLIDER_DRAG_BUTTON, distance)
+			let distance = await computeRotateSlideDistance(solution)
+			await dragElementHorizontal(".secsdk-captcha-drag-icon", distance)
 			if (await checkCaptchaSuccess())
 				return;
 		}
 	}
 
-	async function solveRotateV2(): Promise<void> {
+	async function solvePuzzle(): Promise<void> {
 		for (let i = 0; i < 3; i++) {
-			let outerSrc = await getImageSource(RotateV2.OUTER)
-			let innerSrc = await getImageSource(RotateV2.INNER)
-			let outerImg = await fetchImageBase64(outerSrc)
-			let innerImg = await fetchImageBase64(innerSrc)
-			let solution = await rotateApiCall(outerImg, innerImg)
-			let slideBar = document.querySelector(RotateV2.SLIDE_BAR)
-			let slideButton = document.querySelector(RotateV2.SLIDER_DRAG_BUTTON)
-			let distance = await computeRotateSlideDistance(solution, slideBar, slideButton)
-			await dragElementHorizontal(RotateV2.SLIDER_DRAG_BUTTON, distance)
-			if (await checkCaptchaSuccess())
-				return;
-		}
-	}
-
-	async function solvePuzzleV1(): Promise<void> {
-		for (let i = 0; i < 3; i++) {
-			let puzzleSrc = await getImageSource(PuzzleV1.PUZZLE)
-			let pieceSrc = await getImageSource(PuzzleV1.PIECE)
+			let puzzleSrc = await getPuzzleImageSource()
+			let pieceSrc = await getPieceImageSource()
 			let puzzleImg = await fetchImageBase64(puzzleSrc)
 			let pieceImg = await fetchImageBase64(pieceSrc)
 			let solution = await puzzleApiCall(puzzleImg, pieceImg)
-			let puzzleImageEle = document.querySelector(PuzzleV1.PUZZLE)
-			let distance = await computePuzzleSlideDistance(solution, puzzleImageEle)
-			await dragElementHorizontal(PuzzleV1.SLIDER_DRAG_BUTTON, distance)
+			let distance = await computePuzzleSlideDistance(solution)
+			await dragElementHorizontal(".secsdk-captcha-drag-icon", distance)
 			if (await checkCaptchaSuccess())
 				return;
 		}
 	}
 
-	async function solvePuzzleV2(): Promise<void> {
+	async function solveIcon(): Promise<void> {
 		for (let i = 0; i < 3; i++) {
-			let puzzleSrc = await getImageSource(PuzzleV2.PUZZLE)
-			let pieceSrc = await getImageSource(PuzzleV2.PIECE)
-			let puzzleImg = await fetchImageBase64(puzzleSrc)
-			let pieceImg = await fetchImageBase64(pieceSrc)
-			let solution = await puzzleApiCall(puzzleImg, pieceImg)
-			let puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE)
-			let distance = await computePuzzleSlideDistance(solution, puzzleImageEle)
-			await dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance)
-			if (await checkCaptchaSuccess())
-				return;
-		}
-	}
-
-	async function solveIconV1(): Promise<void> {
-		for (let i = 0; i < 3; i++) {
-			let src = await getImageSource(IconV1.IMAGE)
+			let src = await getShapesImageSource()
 			let img = await fetchImageBase64(src)
-			let challenge: string = document.querySelector(IconV1.TEXT).textContent
+			let challenge: string = document.querySelector(".captcha_verify_bar").textContent
 			let res = await iconApiCall(challenge, img)
-			let ele = document.querySelector(IconV1.IMAGE)
+			let ele = document.querySelector("#captcha-verify-image")
 			for (const point of res.proportionalPoints) {
 				clickProportional(ele, point.proportionX, point.proportionY)
 				await new Promise(r => setTimeout(r, 1337));
 			}
-			let submitButton = document.querySelector(IconV1.SUBMIT_BUTTON)
+			let submitButton = document.querySelector(".verify-captcha-submit-button")
 			clickCenterOfElement(submitButton)
 			await new Promise(r => setTimeout(r, 1337));
 			if (await checkCaptchaSuccess())
@@ -470,55 +430,26 @@ interface Request {
 		}
 	}
 
-	async function solveIconV2(): Promise<void> {
-		for (let i = 0; i < 3; i++) {
-			let src = await getImageSource(IconV2.IMAGE)
-			let img = await fetchImageBase64(src)
-			let challenge: string = document.querySelector(IconV2.TEXT).textContent
-			let res = await iconApiCall(challenge, img)
-			let ele = document.querySelector(IconV2.IMAGE)
-			for (const point of res.proportionalPoints) {
-				clickProportional(ele, point.proportionX, point.proportionY)
-				await new Promise(r => setTimeout(r, 1337));
-			}
-			let submitButton = document.querySelector(IconV2.SUBMIT_BUTTON)
-			clickCenterOfElement(submitButton)
-			await new Promise(r => setTimeout(r, 1337));
-			if (await checkCaptchaSuccess())
-				return;
-		}
-	}
 
 	let isCurrentSolve: boolean
+
 	async function solveCaptchaLoop() {
 		const _: Element = await waitForElement(captchaWrapper)
 		const captchaType: CaptchaType = await identifyCaptcha()
 		if (!isCurrentSolve) {
 			isCurrentSolve = true
 			switch (captchaType) {
-				case CaptchaType.PUZZLE_V1:
-					solvePuzzleV1()
+				case CaptchaType.PUZZLE_v1:
+					solvePuzzle()
 					break
 				case CaptchaType.ROTATE_V1:
-					solveRotateV1()
+					solveRotate()
 					break
 				case CaptchaType.SHAPES_V1:
-					solveShapesV1()
+					solveShapes()
 					break
 				case CaptchaType.ICON_V1:
-					solveIconV1()
-					break
-				case CaptchaType.PUZZLE_V2:
-					solvePuzzleV2()
-					break
-				case CaptchaType.ROTATE_V2:
-					solveRotateV2()
-					break
-				case CaptchaType.SHAPES_V2:
-					solveShapesV2()
-					break
-				case CaptchaType.ICON_V2:
-					solveIconV2()
+					solveIcon()
 					break
 			}
 		}

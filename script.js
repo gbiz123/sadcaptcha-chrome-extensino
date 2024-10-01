@@ -8,8 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -61,22 +61,67 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     var apiHeaders = new Headers({ "Content-Type": "application/json" });
     var successXpath = "//*[contains(text(), 'Verification complete')]";
     var captchaWrapper = ".captcha-disable-scroll";
-    var rotateSelectors = [
-        "[data-testid=whirl-inner-img]",
-        "[data-testid=whirl-outer-img]"
-    ];
-    var puzzleSelectors = [
-        "img.captcha_verify_img_slide"
-    ];
-    var shapesSelectors = [
-        ".verify-captcha-submit-button"
-    ];
+    var Wrappers = {
+        V1: ".captcha-disable-scroll",
+        V2: ".captcha-verify-container"
+    };
+    var RotateV1 = {
+        INNER: "[data-testid=whirl-inner-img]",
+        OUTER: "[data-testid=whirl-outer-img]",
+        SLIDE_BAR: ".captcha_verify_slide--slidebar",
+        SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
+        UNIQUE_IDENTIFIER: ".captcha-disable-scroll [data-testid=whirl-inner-img]"
+    };
+    var RotateV2 = {
+        INNER: ".captcha-verify-container > div > div > div > img.cap-absolute",
+        OUTER: ".captcha-verify-container > div > div > div > img:first-child",
+        SLIDE_BAR: ".captcha-verify-container > div > div > div.cap-w-full > div.cap-rounded-full",
+        SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
+        UNIQUE_IDENTIFIER: ".captcha-verify-container > div > div > div > img.cap-absolute"
+    };
+    var PuzzleV1 = {
+        PIECE: "img.captcha_verify_img_slide",
+        PUZZLE: "#captcha-verify-image",
+        SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
+        UNIQUE_IDENTIFIER: ".captcha-disable-scroll img.captcha_verify_img_slide"
+    };
+    var PuzzleV2 = {
+        PIECE: ".captcha-verify-container .cap-absolute img",
+        PUZZLE: "#captcha-verify-image",
+        SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
+        UNIQUE_IDENTIFIER: ".captcha-verify-container #captcha-verify-image"
+    };
+    var ShapesV1 = {
+        IMAGE: "#captcha-verify-image",
+        SUBMIT_BUTTON: ".verify-captcha-submit-button",
+        UNIQUE_IDENTIFIER: ".captcha-disable-scroll .verify-captcha-submit-button"
+    };
+    var ShapesV2 = {
+        IMAGE: ".captcha-verify-container div.cap-relative img",
+        SUBMIT_BUTTON: ".captcha-verify-container .cap-relative button.cap-w-full",
+        UNIQUE_IDENTIFIER: ".captcha-verify-container .cap-relative button.cap-w-full"
+    };
+    var IconV1 = {
+        IMAGE: "#captcha-verify-image",
+        SUBMIT_BUTTON: ".verify-captcha-submit-button",
+        TEXT: ".captcha_verify_bar",
+        UNIQUE_IDENTIFIER: ".captcha-disable-scroll .verify-captcha-submit-button"
+    };
+    var IconV2 = {
+        IMAGE: ".captcha-verify-container div.cap-relative img",
+        SUBMIT_BUTTON: ".captcha-verify-container .cap-relative button.cap-w-full",
+        TEXT: ".captcha-verify-container > div > div > span"
+    };
     var CaptchaType;
     (function (CaptchaType) {
-        CaptchaType[CaptchaType["PUZZLE"] = 0] = "PUZZLE";
-        CaptchaType[CaptchaType["ROTATE"] = 1] = "ROTATE";
-        CaptchaType[CaptchaType["SHAPES"] = 2] = "SHAPES";
-        CaptchaType[CaptchaType["ICON"] = 3] = "ICON";
+        CaptchaType[CaptchaType["PUZZLE_V1"] = 0] = "PUZZLE_V1";
+        CaptchaType[CaptchaType["ROTATE_V1"] = 1] = "ROTATE_V1";
+        CaptchaType[CaptchaType["SHAPES_V1"] = 2] = "SHAPES_V1";
+        CaptchaType[CaptchaType["ICON_V1"] = 3] = "ICON_V1";
+        CaptchaType[CaptchaType["PUZZLE_V2"] = 4] = "PUZZLE_V2";
+        CaptchaType[CaptchaType["ROTATE_V2"] = 5] = "ROTATE_V2";
+        CaptchaType[CaptchaType["SHAPES_V2"] = 6] = "SHAPES_V2";
+        CaptchaType[CaptchaType["ICON_V2"] = 7] = "ICON_V2";
     })(CaptchaType || (CaptchaType = {}));
     function waitForElement(selector) {
         return new Promise(function (resolve) {
@@ -201,101 +246,67 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
     function identifyCaptcha() {
         return __awaiter(this, void 0, void 0, function () {
-            var i, imgUrl;
+            var i, imgUrl, imgUrl;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         i = 0;
                         _a.label = 1;
                     case 1:
-                        if (!(i < 15)) return [3 /*break*/, 8];
-                        if (!anySelectorInListPresent(rotateSelectors)) return [3 /*break*/, 2];
-                        return [2 /*return*/, CaptchaType.ROTATE];
+                        if (!(i < 30)) return [3 /*break*/, 12];
+                        if (!anySelectorInListPresent([RotateV1.UNIQUE_IDENTIFIER])) return [3 /*break*/, 2];
+                        return [2 /*return*/, CaptchaType.ROTATE_V1];
                     case 2:
-                        if (!anySelectorInListPresent(puzzleSelectors)) return [3 /*break*/, 3];
-                        return [2 /*return*/, CaptchaType.PUZZLE];
+                        if (!anySelectorInListPresent([PuzzleV1.UNIQUE_IDENTIFIER])) return [3 /*break*/, 3];
+                        return [2 /*return*/, CaptchaType.PUZZLE_V1];
                     case 3:
-                        if (!anySelectorInListPresent(shapesSelectors)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, getShapesImageSource()];
+                        if (!anySelectorInListPresent([ShapesV1.UNIQUE_IDENTIFIER])) return [3 /*break*/, 5];
+                        return [4 /*yield*/, getImageSource(ShapesV2.IMAGE)];
                     case 4:
                         imgUrl = _a.sent();
                         if (imgUrl.includes("/icon")) {
-                            return [2 /*return*/, CaptchaType.ICON];
+                            return [2 /*return*/, CaptchaType.ICON_V1];
                         }
                         else {
-                            return [2 /*return*/, CaptchaType.SHAPES];
+                            return [2 /*return*/, CaptchaType.SHAPES_V1];
                         }
-                        return [3 /*break*/, 7];
-                    case 5: return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 2000); })];
+                        return [3 /*break*/, 11];
+                    case 5:
+                        if (!anySelectorInListPresent([RotateV2.UNIQUE_IDENTIFIER])) return [3 /*break*/, 6];
+                        return [2 /*return*/, CaptchaType.ROTATE_V2];
                     case 6:
-                        _a.sent();
-                        _a.label = 7;
+                        if (!anySelectorInListPresent([PuzzleV2.UNIQUE_IDENTIFIER])) return [3 /*break*/, 7];
+                        return [2 /*return*/, CaptchaType.PUZZLE_V2];
                     case 7:
+                        if (!anySelectorInListPresent([ShapesV2.UNIQUE_IDENTIFIER])) return [3 /*break*/, 9];
+                        return [4 /*yield*/, getImageSource(ShapesV2.IMAGE)];
+                    case 8:
+                        imgUrl = _a.sent();
+                        if (imgUrl.includes("/icon")) {
+                            return [2 /*return*/, CaptchaType.ICON_V2];
+                        }
+                        else {
+                            return [2 /*return*/, CaptchaType.SHAPES_V2];
+                        }
+                        return [3 /*break*/, 11];
+                    case 9: return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1000); })];
+                    case 10:
+                        _a.sent();
+                        _a.label = 11;
+                    case 11:
                         i++;
                         return [3 /*break*/, 1];
-                    case 8: throw new Error("Could not identify CaptchaType");
+                    case 12: throw new Error("Could not identify CaptchaType");
                 }
             });
         });
     }
-    function getRotateOuterImageSource() {
+    function getImageSource(selector) {
         return __awaiter(this, void 0, void 0, function () {
             var ele;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, waitForElement("[data-testid=whirl-outer-img]")];
-                    case 1:
-                        ele = _a.sent();
-                        return [2 /*return*/, ele.getAttribute("src")];
-                }
-            });
-        });
-    }
-    function getRotateInnerImageSource() {
-        return __awaiter(this, void 0, void 0, function () {
-            var ele;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, waitForElement("[data-testid=whirl-inner-img]")];
-                    case 1:
-                        ele = _a.sent();
-                        return [2 /*return*/, ele.getAttribute("src")];
-                }
-            });
-        });
-    }
-    function getPuzzleImageSource() {
-        return __awaiter(this, void 0, void 0, function () {
-            var ele;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, waitForElement("#captcha-verify-image")];
-                    case 1:
-                        ele = _a.sent();
-                        return [2 /*return*/, ele.getAttribute("src")];
-                }
-            });
-        });
-    }
-    function getPieceImageSource() {
-        return __awaiter(this, void 0, void 0, function () {
-            var ele;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, waitForElement(".captcha_verify_img_slide")];
-                    case 1:
-                        ele = _a.sent();
-                        return [2 /*return*/, ele.getAttribute("src")];
-                }
-            });
-        });
-    }
-    function getShapesImageSource() {
-        return __awaiter(this, void 0, void 0, function () {
-            var ele;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, waitForElement("#captcha-verify-image")];
+                    case 0: return [4 /*yield*/, waitForElement(selector)];
                     case 1:
                         ele = _a.sent();
                         return [2 /*return*/, ele.getAttribute("src")];
@@ -433,24 +444,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             });
         });
     }
-    function computeRotateSlideDistance(angle) {
+    function computeRotateSlideDistance(angle, slideBarEle, slideIconEle) {
         return __awaiter(this, void 0, void 0, function () {
-            var slidebar, slideLength, slideIcon, iconLength;
+            var slideLength, iconLength;
             return __generator(this, function (_a) {
-                slidebar = document.querySelector(".captcha_verify_slide--slidebar");
-                slideLength = slidebar.getBoundingClientRect().width;
-                slideIcon = document.querySelector(".secsdk-captcha-drag-icon");
-                iconLength = slideIcon.getBoundingClientRect().width;
+                slideLength = slideBarEle.getBoundingClientRect().width;
+                iconLength = slideIconEle.getBoundingClientRect().width;
                 return [2 /*return*/, ((slideLength - iconLength) * angle) / 360];
             });
         });
     }
-    function computePuzzleSlideDistance(proportionX) {
+    function computePuzzleSlideDistance(proportionX, puzzleImageEle) {
         return __awaiter(this, void 0, void 0, function () {
-            var image;
             return __generator(this, function (_a) {
-                image = document.querySelector("#captcha-verify-image");
-                return [2 /*return*/, image.getBoundingClientRect().width * proportionX];
+                return [2 /*return*/, puzzleImageEle.getBoundingClientRect().width * proportionX];
             });
         });
     }
@@ -478,7 +485,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             });
         });
     }
-    function solveShapes() {
+    function solveShapesV1() {
         return __awaiter(this, void 0, void 0, function () {
             var i, src, img, res, ele, submitButton;
             return __generator(this, function (_a) {
@@ -488,7 +495,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         _a.label = 1;
                     case 1:
                         if (!(i < 3)) return [3 /*break*/, 10];
-                        return [4 /*yield*/, getShapesImageSource()];
+                        return [4 /*yield*/, getImageSource(ShapesV1.IMAGE)];
                     case 2:
                         src = _a.sent();
                         return [4 /*yield*/, fetchImageBase64(src)];
@@ -497,7 +504,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         return [4 /*yield*/, shapesApiCall(img)];
                     case 4:
                         res = _a.sent();
-                        ele = document.querySelector("#captcha-verify-image");
+                        ele = document.querySelector(ShapesV1.IMAGE);
                         clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY);
                         return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
                     case 5:
@@ -506,7 +513,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 2337); })];
                     case 6:
                         _a.sent();
-                        submitButton = document.querySelector(".verify-captcha-submit-button");
+                        submitButton = document.querySelector(ShapesV1.SUBMIT_BUTTON);
                         clickCenterOfElement(submitButton);
                         return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
                     case 7:
@@ -524,9 +531,55 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             });
         });
     }
-    function solveRotate() {
+    function solveShapesV2() {
         return __awaiter(this, void 0, void 0, function () {
-            var i, outerSrc, innerSrc, outerImg, innerImg, solution, distance;
+            var i, src, img, res, ele, submitButton;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        i = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(i < 3)) return [3 /*break*/, 10];
+                        return [4 /*yield*/, getImageSource(ShapesV2.IMAGE)];
+                    case 2:
+                        src = _a.sent();
+                        return [4 /*yield*/, fetchImageBase64(src)];
+                    case 3:
+                        img = _a.sent();
+                        return [4 /*yield*/, shapesApiCall(img)];
+                    case 4:
+                        res = _a.sent();
+                        ele = document.querySelector(ShapesV2.IMAGE);
+                        clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY);
+                        return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
+                    case 5:
+                        _a.sent();
+                        clickProportional(ele, res.pointTwoProportionX, res.pointTwoProportionY);
+                        return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 2337); })];
+                    case 6:
+                        _a.sent();
+                        submitButton = document.querySelector(ShapesV2.SUBMIT_BUTTON);
+                        clickCenterOfElement(submitButton);
+                        return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
+                    case 7:
+                        _a.sent();
+                        return [4 /*yield*/, checkCaptchaSuccess()];
+                    case 8:
+                        if (_a.sent())
+                            return [2 /*return*/];
+                        _a.label = 9;
+                    case 9:
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 10: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function solveRotateV1() {
+        return __awaiter(this, void 0, void 0, function () {
+            var i, outerSrc, innerSrc, outerImg, innerImg, solution, slideBar, slideButton, distance;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -534,10 +587,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         _a.label = 1;
                     case 1:
                         if (!(i < 3)) return [3 /*break*/, 11];
-                        return [4 /*yield*/, getRotateOuterImageSource()];
+                        return [4 /*yield*/, getImageSource(RotateV1.OUTER)];
                     case 2:
                         outerSrc = _a.sent();
-                        return [4 /*yield*/, getRotateInnerImageSource()];
+                        return [4 /*yield*/, getImageSource(RotateV1.INNER)];
                     case 3:
                         innerSrc = _a.sent();
                         return [4 /*yield*/, fetchImageBase64(outerSrc)];
@@ -549,10 +602,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         return [4 /*yield*/, rotateApiCall(outerImg, innerImg)];
                     case 6:
                         solution = _a.sent();
-                        return [4 /*yield*/, computeRotateSlideDistance(solution)];
+                        slideBar = document.querySelector(RotateV1.SLIDE_BAR);
+                        slideButton = document.querySelector(RotateV1.SLIDER_DRAG_BUTTON);
+                        return [4 /*yield*/, computeRotateSlideDistance(solution, slideBar, slideButton)];
                     case 7:
                         distance = _a.sent();
-                        return [4 /*yield*/, dragElementHorizontal(".secsdk-captcha-drag-icon", distance)];
+                        return [4 /*yield*/, dragElementHorizontal(RotateV1.SLIDER_DRAG_BUTTON, distance)];
                     case 8:
                         _a.sent();
                         return [4 /*yield*/, checkCaptchaSuccess()];
@@ -568,9 +623,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             });
         });
     }
-    function solvePuzzle() {
+    function solveRotateV2() {
         return __awaiter(this, void 0, void 0, function () {
-            var i, puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, distance;
+            var i, outerSrc, innerSrc, outerImg, innerImg, solution, slideBar, slideButton, distance;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -578,10 +633,56 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         _a.label = 1;
                     case 1:
                         if (!(i < 3)) return [3 /*break*/, 11];
-                        return [4 /*yield*/, getPuzzleImageSource()];
+                        return [4 /*yield*/, getImageSource(RotateV2.OUTER)];
+                    case 2:
+                        outerSrc = _a.sent();
+                        return [4 /*yield*/, getImageSource(RotateV2.INNER)];
+                    case 3:
+                        innerSrc = _a.sent();
+                        return [4 /*yield*/, fetchImageBase64(outerSrc)];
+                    case 4:
+                        outerImg = _a.sent();
+                        return [4 /*yield*/, fetchImageBase64(innerSrc)];
+                    case 5:
+                        innerImg = _a.sent();
+                        return [4 /*yield*/, rotateApiCall(outerImg, innerImg)];
+                    case 6:
+                        solution = _a.sent();
+                        slideBar = document.querySelector(RotateV2.SLIDE_BAR);
+                        slideButton = document.querySelector(RotateV2.SLIDER_DRAG_BUTTON);
+                        return [4 /*yield*/, computeRotateSlideDistance(solution, slideBar, slideButton)];
+                    case 7:
+                        distance = _a.sent();
+                        return [4 /*yield*/, dragElementHorizontal(RotateV2.SLIDER_DRAG_BUTTON, distance)];
+                    case 8:
+                        _a.sent();
+                        return [4 /*yield*/, checkCaptchaSuccess()];
+                    case 9:
+                        if (_a.sent())
+                            return [2 /*return*/];
+                        _a.label = 10;
+                    case 10:
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 11: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function solvePuzzleV1() {
+        return __awaiter(this, void 0, void 0, function () {
+            var i, puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, distance;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        i = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(i < 3)) return [3 /*break*/, 11];
+                        return [4 /*yield*/, getImageSource(PuzzleV1.PUZZLE)];
                     case 2:
                         puzzleSrc = _a.sent();
-                        return [4 /*yield*/, getPieceImageSource()];
+                        return [4 /*yield*/, getImageSource(PuzzleV1.PIECE)];
                     case 3:
                         pieceSrc = _a.sent();
                         return [4 /*yield*/, fetchImageBase64(puzzleSrc)];
@@ -593,10 +694,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         return [4 /*yield*/, puzzleApiCall(puzzleImg, pieceImg)];
                     case 6:
                         solution = _a.sent();
-                        return [4 /*yield*/, computePuzzleSlideDistance(solution)];
+                        puzzleImageEle = document.querySelector(PuzzleV1.PUZZLE);
+                        return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
                     case 7:
                         distance = _a.sent();
-                        return [4 /*yield*/, dragElementHorizontal(".secsdk-captcha-drag-icon", distance)];
+                        return [4 /*yield*/, dragElementHorizontal(PuzzleV1.SLIDER_DRAG_BUTTON, distance)];
                     case 8:
                         _a.sent();
                         return [4 /*yield*/, checkCaptchaSuccess()];
@@ -612,7 +714,52 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             });
         });
     }
-    function solveIcon() {
+    function solvePuzzleV2() {
+        return __awaiter(this, void 0, void 0, function () {
+            var i, puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, distance;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        i = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(i < 3)) return [3 /*break*/, 11];
+                        return [4 /*yield*/, getImageSource(PuzzleV2.PUZZLE)];
+                    case 2:
+                        puzzleSrc = _a.sent();
+                        return [4 /*yield*/, getImageSource(PuzzleV2.PIECE)];
+                    case 3:
+                        pieceSrc = _a.sent();
+                        return [4 /*yield*/, fetchImageBase64(puzzleSrc)];
+                    case 4:
+                        puzzleImg = _a.sent();
+                        return [4 /*yield*/, fetchImageBase64(pieceSrc)];
+                    case 5:
+                        pieceImg = _a.sent();
+                        return [4 /*yield*/, puzzleApiCall(puzzleImg, pieceImg)];
+                    case 6:
+                        solution = _a.sent();
+                        puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE);
+                        return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
+                    case 7:
+                        distance = _a.sent();
+                        return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance)];
+                    case 8:
+                        _a.sent();
+                        return [4 /*yield*/, checkCaptchaSuccess()];
+                    case 9:
+                        if (_a.sent())
+                            return [2 /*return*/];
+                        _a.label = 10;
+                    case 10:
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 11: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function solveIconV1() {
         return __awaiter(this, void 0, void 0, function () {
             var i, src, img, challenge, res, ele, _i, _a, point, submitButton;
             return __generator(this, function (_b) {
@@ -622,17 +769,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         _b.label = 1;
                     case 1:
                         if (!(i < 3)) return [3 /*break*/, 12];
-                        return [4 /*yield*/, getShapesImageSource()];
+                        return [4 /*yield*/, getImageSource(IconV1.IMAGE)];
                     case 2:
                         src = _b.sent();
                         return [4 /*yield*/, fetchImageBase64(src)];
                     case 3:
                         img = _b.sent();
-                        challenge = document.querySelector(".captcha_verify_bar").textContent;
+                        challenge = document.querySelector(IconV1.TEXT).textContent;
                         return [4 /*yield*/, iconApiCall(challenge, img)];
                     case 4:
                         res = _b.sent();
-                        ele = document.querySelector("#captcha-verify-image");
+                        ele = document.querySelector(IconV1.IMAGE);
                         _i = 0, _a = res.proportionalPoints;
                         _b.label = 5;
                     case 5:
@@ -647,7 +794,60 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         _i++;
                         return [3 /*break*/, 5];
                     case 8:
-                        submitButton = document.querySelector(".verify-captcha-submit-button");
+                        submitButton = document.querySelector(IconV1.SUBMIT_BUTTON);
+                        clickCenterOfElement(submitButton);
+                        return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
+                    case 9:
+                        _b.sent();
+                        return [4 /*yield*/, checkCaptchaSuccess()];
+                    case 10:
+                        if (_b.sent())
+                            return [2 /*return*/];
+                        _b.label = 11;
+                    case 11:
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 12: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function solveIconV2() {
+        return __awaiter(this, void 0, void 0, function () {
+            var i, src, img, challenge, res, ele, _i, _a, point, submitButton;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        i = 0;
+                        _b.label = 1;
+                    case 1:
+                        if (!(i < 3)) return [3 /*break*/, 12];
+                        return [4 /*yield*/, getImageSource(IconV2.IMAGE)];
+                    case 2:
+                        src = _b.sent();
+                        return [4 /*yield*/, fetchImageBase64(src)];
+                    case 3:
+                        img = _b.sent();
+                        challenge = document.querySelector(IconV2.TEXT).textContent;
+                        return [4 /*yield*/, iconApiCall(challenge, img)];
+                    case 4:
+                        res = _b.sent();
+                        ele = document.querySelector(IconV2.IMAGE);
+                        _i = 0, _a = res.proportionalPoints;
+                        _b.label = 5;
+                    case 5:
+                        if (!(_i < _a.length)) return [3 /*break*/, 8];
+                        point = _a[_i];
+                        clickProportional(ele, point.proportionX, point.proportionY);
+                        return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
+                    case 6:
+                        _b.sent();
+                        _b.label = 7;
+                    case 7:
+                        _i++;
+                        return [3 /*break*/, 5];
+                    case 8:
+                        submitButton = document.querySelector(IconV2.SUBMIT_BUTTON);
                         clickCenterOfElement(submitButton);
                         return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
                     case 9:
@@ -680,17 +880,29 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         if (!isCurrentSolve) {
                             isCurrentSolve = true;
                             switch (captchaType) {
-                                case CaptchaType.PUZZLE:
-                                    solvePuzzle();
+                                case CaptchaType.PUZZLE_V1:
+                                    solvePuzzleV1();
                                     break;
-                                case CaptchaType.ROTATE:
-                                    solveRotate();
+                                case CaptchaType.ROTATE_V1:
+                                    solveRotateV1();
                                     break;
-                                case CaptchaType.SHAPES:
-                                    solveShapes();
+                                case CaptchaType.SHAPES_V1:
+                                    solveShapesV1();
                                     break;
-                                case CaptchaType.ICON:
-                                    solveIcon();
+                                case CaptchaType.ICON_V1:
+                                    solveIconV1();
+                                    break;
+                                case CaptchaType.PUZZLE_V2:
+                                    solvePuzzleV2();
+                                    break;
+                                case CaptchaType.ROTATE_V2:
+                                    solveRotateV2();
+                                    break;
+                                case CaptchaType.SHAPES_V2:
+                                    solveShapesV2();
+                                    break;
+                                case CaptchaType.ICON_V2:
+                                    solveIconV2();
                                     break;
                             }
                         }
