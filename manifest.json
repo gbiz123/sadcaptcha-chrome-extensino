@@ -22,8 +22,5 @@
     "gecko": {
       "id": "greg@toughdata.net"
     }
-  },
-  "permissions": [
-    "activeTab"
-  ]
+  }
 }
