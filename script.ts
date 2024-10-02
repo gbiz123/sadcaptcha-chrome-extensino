@@ -132,6 +132,7 @@ interface Request {
 			selectors.forEach(selector => {
 				if (document.querySelector(selector)) {
 					selectorFound = selector
+					console.log("Selector found: " + selector)
 					return
 				}
 			})
@@ -144,6 +145,7 @@ interface Request {
 				selectors.forEach(selector => {
 					if (document.querySelector(selector)) {
 						selectorFound = selector
+						console.log("Selector found by mutation observer: " + selector)
 						observer.disconnect()
 						return
 					}
@@ -161,11 +163,13 @@ interface Request {
 	function waitForElement(selector: string): Promise<Element> {
 		return new Promise(resolve => {
 			if (document.querySelector(selector)) {
+				console.log("Selector found: " + selector)
 				return resolve(document.querySelector(selector)!)
 			} else {
 				const observer: MutationObserver = new MutationObserver(mutations => {
 					if (document.querySelector(selector)) {
 						observer.disconnect()
+						console.log("Selector found by mutation observer: " + selector)
 						return resolve(document.querySelector(selector)!)
 					}
 				})
@@ -197,7 +201,9 @@ interface Request {
 				innerImageB64: innerB64
 			})
 		})
-		return (await resp.json()).angle
+		let angle = (await resp.json()).angle
+		console.log("angle = " + angle)
+		return angle
 	}
 
 	async function puzzleApiCall(puzzleB64: string, pieceB64: string): Promise<number> {
@@ -209,7 +215,9 @@ interface Request {
 				pieceImageB64: pieceB64
 			})
 		})
-		return (await resp.json()).slideXProportion
+		let slideXProportion = (await resp.json()).slideXProportion
+		console.log("slideXProportion = " + slideXProportion)
+		return slideXProportion
 	}
 
 	async function shapesApiCall(imageB64: string): Promise<ShapesCaptchaResponse> {
@@ -221,6 +229,8 @@ interface Request {
 			})
 		})
 		let data = await resp.json()
+		console.log("Shapes response data:")
+		console.log(data)
 		return {
 			pointOneProportionX: data.pointOneProportionX,
 			pointOneProportionY: data.pointOneProportionY,
@@ -239,6 +249,8 @@ interface Request {
 			})
 		})
 		let data = await resp.json()
+		console.log("Icon response data:")
+		console.log(data)
 		return data
 	}
 
@@ -293,7 +305,9 @@ interface Request {
 
 	async function getImageSource(selector: string): Promise<string> {
 		let ele = await waitForElement(selector)
-		return ele.getAttribute("src")
+		let src = ele.getAttribute("src")
+		console.log("src = " + selector)
+		return src
 	}
 
 	function getBase64StringFromDataURL(dataUrl: string): string {
