@@ -563,7 +563,7 @@ interface Request {
 		if (await creditsApiCall() <= 0) {
 			console.log("out of credits")
 			alert("Out of SadCaptcha credits. Please boost your balance on sadcaptcha.com/dashboard.")
-			solveCaptchaLoop()
+			return
 		}
 		if (!isCurrentSolve) {
 			isCurrentSolve = true
