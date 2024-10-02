@@ -26,6 +26,7 @@ interface Request {
 		}
 	)
 
+	let creditsUrl = "https://www.sadcaptcha.com/api/v1/license/credits?licenseKey="
 	let rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey="
 	let puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey="
 	let shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey="
@@ -123,6 +124,40 @@ interface Request {
 		ICON_V2
 	}
 
+	function waitForAnyElementInList(selectors: Array<string>): Promise<Element> {
+		return new Promise(resolve => {
+			let selectorFound: string = null
+
+			// Check if already present
+			selectors.forEach(selector => {
+				if (document.querySelector(selector)) {
+					selectorFound = selector
+					return
+				}
+			})
+			if (selectorFound !== null) {
+				return resolve(document.querySelector(selectorFound))
+			}
+
+			// Then start waiting if not found immediately
+			const observer: MutationObserver = new MutationObserver(mutations => {
+				selectors.forEach(selector => {
+					if (document.querySelector(selector)) {
+						selectorFound = selector
+						observer.disconnect()
+						return
+					}
+				})
+				return resolve(document.querySelector(selectorFound)!)
+			})
+
+			observer.observe(container, {
+				childList: true,
+				subtree: true
+			})
+		})
+	}
+
 	function waitForElement(selector: string): Promise<Element> {
 		return new Promise(resolve => {
 			if (document.querySelector(selector)) {
@@ -141,6 +176,16 @@ interface Request {
 				})
 			}
 		})
+	}
+
+	async function creditsApiCall(): Promise<number> {
+		let resp = await fetch(creditsUrl + apiKey, {
+			method: "GET",
+			headers: apiHeaders,
+		})
+		let credits = (await resp.json()).credits
+		console.log("api credits = " + credits)
+		return credits
 	}
 
 	async function rotateApiCall(outerB64: string, innerB64: string): Promise<number> {
@@ -210,25 +255,33 @@ interface Request {
 	async function identifyCaptcha(): Promise<CaptchaType> {
 		for (let i = 0; i < 30; i++) {
 			if (anySelectorInListPresent([RotateV1.UNIQUE_IDENTIFIER])) {
+				console.log("rotate v1 detected")
 				return CaptchaType.ROTATE_V1
 			} else if (anySelectorInListPresent([PuzzleV1.UNIQUE_IDENTIFIER])) {
+				console.log("puzzle v1 detected")
 				return CaptchaType.PUZZLE_V1
 			} else if (anySelectorInListPresent([ShapesV1.UNIQUE_IDENTIFIER])) {
 				let imgUrl: string = await getImageSource(ShapesV2.IMAGE)
 				if (imgUrl.includes("/icon")) {
+					console.log("icon v1 detected")
 					return CaptchaType.ICON_V1
 				} else {
+					console.log("shapes v1 detected")
 					return CaptchaType.SHAPES_V1
 				}
 			} else if (anySelectorInListPresent([RotateV2.UNIQUE_IDENTIFIER])) {
+				console.log("rotate v2 detected")
 				return CaptchaType.ROTATE_V2
 			} else if (anySelectorInListPresent([PuzzleV2.UNIQUE_IDENTIFIER])) {
+				console.log("puzzle v2 detected")
 				return CaptchaType.PUZZLE_V2
 			} else if (anySelectorInListPresent([ShapesV2.UNIQUE_IDENTIFIER])) {
 				let imgUrl: string = await getImageSource(ShapesV2.IMAGE)
 				if (imgUrl.includes("/icon")) {
+					console.log("icon v1 detected")
 					return CaptchaType.ICON_V2
 				} else {
+					console.log("shapes v2 detected")
 					return CaptchaType.SHAPES_V2
 				}
 			} else {
@@ -491,8 +544,13 @@ interface Request {
 
 	let isCurrentSolve: boolean
 	async function solveCaptchaLoop() {
-		const _: Element = await waitForElement(captchaWrapper)
+		const _: Element = await waitForAnyElementInList([Wrappers.V1, Wrappers.V2])
 		const captchaType: CaptchaType = await identifyCaptcha()
+		if (await creditsApiCall() <= 0) {
+			console.log("out of credits")
+			alert("Out of SadCaptcha credits. Please boost your balance on sadcaptcha.com/dashboard.")
+			solveCaptchaLoop()
+		}
 		if (!isCurrentSolve) {
 			isCurrentSolve = true
 			switch (captchaType) {

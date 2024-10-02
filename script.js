@@ -53,6 +53,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             sendResponse({ message: "API key cannot be empty.", success: 0 });
         }
     });
+    var creditsUrl = "https://www.sadcaptcha.com/api/v1/license/credits?licenseKey=";
     var rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey=";
     var puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey=";
     var shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey=";
@@ -123,6 +124,36 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         CaptchaType[CaptchaType["SHAPES_V2"] = 6] = "SHAPES_V2";
         CaptchaType[CaptchaType["ICON_V2"] = 7] = "ICON_V2";
     })(CaptchaType || (CaptchaType = {}));
+    function waitForAnyElementInList(selectors) {
+        return new Promise(function (resolve) {
+            var selectorFound = null;
+            // Check if already present
+            selectors.forEach(function (selector) {
+                if (document.querySelector(selector)) {
+                    selectorFound = selector;
+                    return;
+                }
+            });
+            if (selectorFound !== null) {
+                return resolve(document.querySelector(selectorFound));
+            }
+            // Then start waiting if not found immediately
+            var observer = new MutationObserver(function (mutations) {
+                selectors.forEach(function (selector) {
+                    if (document.querySelector(selector)) {
+                        selectorFound = selector;
+                        observer.disconnect();
+                        return;
+                    }
+                });
+                return resolve(document.querySelector(selectorFound));
+            });
+            observer.observe(container, {
+                childList: true,
+                subtree: true
+            });
+        });
+    }
     function waitForElement(selector) {
         return new Promise(function (resolve) {
             if (document.querySelector(selector)) {
@@ -140,6 +171,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                     subtree: true
                 });
             }
+        });
+    }
+    function creditsApiCall() {
+        return __awaiter(this, void 0, void 0, function () {
+            var resp, credits;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, fetch(creditsUrl + apiKey, {
+                            method: "GET",
+                            headers: apiHeaders,
+                        })];
+                    case 1:
+                        resp = _a.sent();
+                        return [4 /*yield*/, resp.json()];
+                    case 2:
+                        credits = (_a.sent()).credits;
+                        console.log("api credits = " + credits);
+                        return [2 /*return*/, credits];
+                }
+            });
         });
     }
     function rotateApiCall(outerB64, innerB64) {
@@ -255,9 +306,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                     case 1:
                         if (!(i < 30)) return [3 /*break*/, 12];
                         if (!anySelectorInListPresent([RotateV1.UNIQUE_IDENTIFIER])) return [3 /*break*/, 2];
+                        console.log("rotate v1 detected");
                         return [2 /*return*/, CaptchaType.ROTATE_V1];
                     case 2:
                         if (!anySelectorInListPresent([PuzzleV1.UNIQUE_IDENTIFIER])) return [3 /*break*/, 3];
+                        console.log("puzzle v1 detected");
                         return [2 /*return*/, CaptchaType.PUZZLE_V1];
                     case 3:
                         if (!anySelectorInListPresent([ShapesV1.UNIQUE_IDENTIFIER])) return [3 /*break*/, 5];
@@ -265,17 +318,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                     case 4:
                         imgUrl = _a.sent();
                         if (imgUrl.includes("/icon")) {
+                            console.log("icon v1 detected");
                             return [2 /*return*/, CaptchaType.ICON_V1];
                         }
                         else {
+                            console.log("shapes v1 detected");
                             return [2 /*return*/, CaptchaType.SHAPES_V1];
                         }
                         return [3 /*break*/, 11];
                     case 5:
                         if (!anySelectorInListPresent([RotateV2.UNIQUE_IDENTIFIER])) return [3 /*break*/, 6];
+                        console.log("rotate v2 detected");
                         return [2 /*return*/, CaptchaType.ROTATE_V2];
                     case 6:
                         if (!anySelectorInListPresent([PuzzleV2.UNIQUE_IDENTIFIER])) return [3 /*break*/, 7];
+                        console.log("puzzle v2 detected");
                         return [2 /*return*/, CaptchaType.PUZZLE_V2];
                     case 7:
                         if (!anySelectorInListPresent([ShapesV2.UNIQUE_IDENTIFIER])) return [3 /*break*/, 9];
@@ -283,9 +340,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                     case 8:
                         imgUrl = _a.sent();
                         if (imgUrl.includes("/icon")) {
+                            console.log("icon v1 detected");
                             return [2 /*return*/, CaptchaType.ICON_V2];
                         }
                         else {
+                            console.log("shapes v2 detected");
                             return [2 /*return*/, CaptchaType.SHAPES_V2];
                         }
                         return [3 /*break*/, 11];
@@ -871,12 +930,19 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             var _, captchaType;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, waitForElement(captchaWrapper)];
+                    case 0: return [4 /*yield*/, waitForAnyElementInList([Wrappers.V1, Wrappers.V2])];
                     case 1:
                         _ = _a.sent();
                         return [4 /*yield*/, identifyCaptcha()];
                     case 2:
                         captchaType = _a.sent();
+                        return [4 /*yield*/, creditsApiCall()];
+                    case 3:
+                        if ((_a.sent()) <= 0) {
+                            console.log("out of credits");
+                            alert("Out of SadCaptcha credits. Please boost your balance on sadcaptcha.com/dashboard.");
+                            solveCaptchaLoop();
+                        }
                         if (!isCurrentSolve) {
                             isCurrentSolve = true;
                             switch (captchaType) {
@@ -907,11 +973,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                             }
                         }
                         return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 30000); })];
-                    case 3:
+                    case 4:
                         _a.sent();
                         isCurrentSolve = false;
                         return [4 /*yield*/, solveCaptchaLoop()];
-                    case 4:
+                    case 5:
                         _a.sent();
                         return [2 /*return*/];
                 }
