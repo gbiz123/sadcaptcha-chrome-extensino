@@ -133,7 +133,7 @@ interface Request {
 				if (document.querySelector(selector)) {
 					selectorFound = selector
 					console.log("Selector found: " + selector)
-					return
+					return resolve(document.querySelector(selectorFound))
 				}
 			})
 			if (selectorFound !== null) {
@@ -150,7 +150,12 @@ interface Request {
 						return
 					}
 				})
-				return resolve(document.querySelector(selectorFound)!)
+				if (selectorFound !== null) {
+					console.log("returning selector from mutation observer: " + selectorFound)
+					return resolve(document.querySelector(selectorFound))
+				} else {
+					console.log("unimportant mutation seen")
+				}
 			})
 
 			observer.observe(container, {
@@ -560,10 +565,15 @@ interface Request {
 	async function solveCaptchaLoop() {
 		const _: Element = await waitForAnyElementInList([Wrappers.V1, Wrappers.V2])
 		const captchaType: CaptchaType = await identifyCaptcha()
-		if (await creditsApiCall() <= 0) {
-			console.log("out of credits")
-			alert("Out of SadCaptcha credits. Please boost your balance on sadcaptcha.com/dashboard.")
-			return
+		try {
+			if (await creditsApiCall() <= 0) {
+				console.log("out of credits")
+				alert("Out of SadCaptcha credits. Please boost your balance on sadcaptcha.com/dashboard.")
+				return
+			}
+		} catch (e) {
+			// Catch the error because we dont want to break the solver just because we failed to fetch the credits API
+			console.log("error making check credits api call: " + e)
 		}
 		if (!isCurrentSolve) {
 			isCurrentSolve = true

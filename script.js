@@ -131,7 +131,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             selectors.forEach(function (selector) {
                 if (document.querySelector(selector)) {
                     selectorFound = selector;
-                    return;
+                    console.log("Selector found: " + selector);
+                    return resolve(document.querySelector(selectorFound));
                 }
             });
             if (selectorFound !== null) {
@@ -142,11 +143,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                 selectors.forEach(function (selector) {
                     if (document.querySelector(selector)) {
                         selectorFound = selector;
+                        console.log("Selector found by mutation observer: " + selector);
                         observer.disconnect();
                         return;
                     }
                 });
-                return resolve(document.querySelector(selectorFound));
+                if (selectorFound !== null) {
+                    console.log("returning selector from mutation observer: " + selectorFound);
+                    return resolve(document.querySelector(selectorFound));
+                }
+                else {
+                    console.log("unimportant mutation seen");
+                }
             });
             observer.observe(container, {
                 childList: true,
@@ -157,12 +165,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function waitForElement(selector) {
         return new Promise(function (resolve) {
             if (document.querySelector(selector)) {
+                console.log("Selector found: " + selector);
                 return resolve(document.querySelector(selector));
             }
             else {
                 var observer_1 = new MutationObserver(function (mutations) {
                     if (document.querySelector(selector)) {
                         observer_1.disconnect();
+                        console.log("Selector found by mutation observer: " + selector);
                         return resolve(document.querySelector(selector));
                     }
                 });
@@ -195,7 +205,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
     function rotateApiCall(outerB64, innerB64) {
         return __awaiter(this, void 0, void 0, function () {
-            var resp;
+            var resp, angle;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, fetch(rotateUrl + apiKey, {
@@ -209,14 +219,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                     case 1:
                         resp = _a.sent();
                         return [4 /*yield*/, resp.json()];
-                    case 2: return [2 /*return*/, (_a.sent()).angle];
+                    case 2:
+                        angle = (_a.sent()).angle;
+                        console.log("angle = " + angle);
+                        return [2 /*return*/, angle];
                 }
             });
         });
     }
     function puzzleApiCall(puzzleB64, pieceB64) {
         return __awaiter(this, void 0, void 0, function () {
-            var resp;
+            var resp, slideXProportion;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, fetch(puzzleUrl + apiKey, {
@@ -230,7 +243,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                     case 1:
                         resp = _a.sent();
                         return [4 /*yield*/, resp.json()];
-                    case 2: return [2 /*return*/, (_a.sent()).slideXProportion];
+                    case 2:
+                        slideXProportion = (_a.sent()).slideXProportion;
+                        console.log("slideXProportion = " + slideXProportion);
+                        return [2 /*return*/, slideXProportion];
                 }
             });
         });
@@ -252,6 +268,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         return [4 /*yield*/, resp.json()];
                     case 2:
                         data = _a.sent();
+                        console.log("Shapes response data:");
+                        console.log(data);
                         return [2 /*return*/, {
                                 pointOneProportionX: data.pointOneProportionX,
                                 pointOneProportionY: data.pointOneProportionY,
@@ -280,6 +298,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         return [4 /*yield*/, resp.json()];
                     case 2:
                         data = _a.sent();
+                        console.log("Icon response data:");
+                        console.log(data);
                         return [2 /*return*/, data];
                 }
             });
@@ -362,13 +382,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
     function getImageSource(selector) {
         return __awaiter(this, void 0, void 0, function () {
-            var ele;
+            var ele, src;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, waitForElement(selector)];
                     case 1:
                         ele = _a.sent();
-                        return [2 /*return*/, ele.getAttribute("src")];
+                        src = ele.getAttribute("src");
+                        console.log("src = " + selector);
+                        return [2 /*return*/, src];
                 }
             });
         });
@@ -927,7 +949,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     var isCurrentSolve;
     function solveCaptchaLoop() {
         return __awaiter(this, void 0, void 0, function () {
-            var _, captchaType;
+            var _, captchaType, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, waitForAnyElementInList([Wrappers.V1, Wrappers.V2])];
@@ -936,13 +958,23 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         return [4 /*yield*/, identifyCaptcha()];
                     case 2:
                         captchaType = _a.sent();
-                        return [4 /*yield*/, creditsApiCall()];
+                        _a.label = 3;
                     case 3:
+                        _a.trys.push([3, 5, , 6]);
+                        return [4 /*yield*/, creditsApiCall()];
+                    case 4:
                         if ((_a.sent()) <= 0) {
                             console.log("out of credits");
                             alert("Out of SadCaptcha credits. Please boost your balance on sadcaptcha.com/dashboard.");
-                            solveCaptchaLoop();
+                            return [2 /*return*/];
                         }
+                        return [3 /*break*/, 6];
+                    case 5:
+                        e_1 = _a.sent();
+                        // Catch the error because we dont want to break the solver just because we failed to fetch the credits API
+                        console.log("error making check credits api call: " + e_1);
+                        return [3 /*break*/, 6];
+                    case 6:
                         if (!isCurrentSolve) {
                             isCurrentSolve = true;
                             switch (captchaType) {
@@ -973,11 +1005,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                             }
                         }
                         return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 30000); })];
-                    case 4:
+                    case 7:
                         _a.sent();
                         isCurrentSolve = false;
                         return [4 /*yield*/, solveCaptchaLoop()];
-                    case 5:
+                    case 8:
                         _a.sent();
                         return [2 /*return*/];
                 }
