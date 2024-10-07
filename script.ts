@@ -9,7 +9,7 @@ interface Request {
 		return true;
 	(window as any).hasRun = true;
 
-	const container: Element = document.documentElement || document.body
+	const CONTAINER: Element = document.documentElement || document.body
 
 	// Api key is passed from extension via message
 	let apiKey: string = localStorage.getItem("sadCaptchaKey");
@@ -54,7 +54,7 @@ interface Request {
 		INNER: ".captcha-verify-container > div > div > div > img.cap-absolute",
 		OUTER: ".captcha-verify-container > div > div > div > img:first-child",
 		SLIDE_BAR: ".captcha-verify-container > div > div > div.cap-w-full > div.cap-rounded-full",
-		SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
+		SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
 		UNIQUE_IDENTIFIER: ".captcha-verify-container > div > div > div > img.cap-absolute"
 	}
 
@@ -68,7 +68,7 @@ interface Request {
 	const PuzzleV2 = {
 		PIECE: ".captcha-verify-container .cap-absolute img",
 		PUZZLE: "#captcha-verify-image",
-		SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
+		SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
 		UNIQUE_IDENTIFIER: ".captcha-verify-container #captcha-verify-image"
 	}
 
@@ -158,7 +158,7 @@ interface Request {
 				}
 			})
 
-			observer.observe(container, {
+			observer.observe(CONTAINER, {
 				childList: true,
 				subtree: true
 			})
@@ -179,7 +179,7 @@ interface Request {
 					}
 				})
 
-				observer.observe(container, {
+				observer.observe(CONTAINER, {
 					childList: true,
 					subtree: true
 				})
@@ -332,7 +332,7 @@ interface Request {
 	}
 
 	async function moveMouseTo(x: number, y: number): Promise<void> {
-		container.dispatchEvent(
+		CONTAINER.dispatchEvent(
 			new MouseEvent("mousemove", {
 				bubbles: true,
 				view: window,
@@ -340,9 +340,11 @@ interface Request {
 				clientY: y
 			})
 		)
+		console.log("moved mouse to " + x + ", " + y)
 	}
 
-	async function dragElementHorizontal(selector: string, x: number): Promise<void> {
+	async function dragElementHorizontal(selector: string, xOffset: number): Promise<void> {
+		console.log("preparing to drag " + selector + " by " + xOffset + " pixels")
 		let ele = document.querySelector(selector)
 		let box = ele.getBoundingClientRect()
 		let startX = (box.x + (box.width / 133.7))
@@ -350,25 +352,34 @@ interface Request {
 		moveMouseTo(startX, startY)
 		await new Promise(r => setTimeout(r, 133.7));
 		ele.dispatchEvent(
-			new MouseEvent("mousedown", {
+			new PointerEvent("mousedown", {
+				pointerType: "mouse",
+				cancelable: true,
 				bubbles: true,
+				view: window,
 				clientX: startX,
 				clientY: startY
 			})
 		)
+		console.log("sent mouse down at " + startX + ", " + startY)
 		await new Promise(r => setTimeout(r, 133.7));
-		for (let i = 0; i < x; i++) {
+		for (let i = 0; i < xOffset; i++) {
 			ele.dispatchEvent(
-				new MouseEvent("mousemove", {
+				new PointerEvent("mousemove", {
+					pointerType: "mouse",
+					cancelable: true,
 					bubbles: true,
+					view: window,
 					clientX: startX + i,
 					clientY: startY
 				})
 			)
 			await new Promise(r => setTimeout(r, 1.337));
+			console.log("sent mouse mouse move at " + (startX + i) + ", " + startY)
 		}
 		await new Promise(r => setTimeout(r, 133.7));
 		ele.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }))
+		console.log("sent mouse up")
 	}
 
 	async function clickMouse(element: Element, x: number, y: number): Promise<void> {

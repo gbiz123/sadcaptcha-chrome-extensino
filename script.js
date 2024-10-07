@@ -39,7 +39,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     if (window.hasRun === true)
         return true;
     window.hasRun = true;
-    var container = document.documentElement || document.body;
+    var CONTAINER = document.documentElement || document.body;
     // Api key is passed from extension via message
     var apiKey = localStorage.getItem("sadCaptchaKey");
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -77,7 +77,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         INNER: ".captcha-verify-container > div > div > div > img.cap-absolute",
         OUTER: ".captcha-verify-container > div > div > div > img:first-child",
         SLIDE_BAR: ".captcha-verify-container > div > div > div.cap-w-full > div.cap-rounded-full",
-        SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
+        SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
         UNIQUE_IDENTIFIER: ".captcha-verify-container > div > div > div > img.cap-absolute"
     };
     var PuzzleV1 = {
@@ -89,7 +89,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     var PuzzleV2 = {
         PIECE: ".captcha-verify-container .cap-absolute img",
         PUZZLE: "#captcha-verify-image",
-        SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
+        SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
         UNIQUE_IDENTIFIER: ".captcha-verify-container #captcha-verify-image"
     };
     var ShapesV1 = {
@@ -156,7 +156,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                     console.log("unimportant mutation seen");
                 }
             });
-            observer.observe(container, {
+            observer.observe(CONTAINER, {
                 childList: true,
                 subtree: true
             });
@@ -176,7 +176,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         return resolve(document.querySelector(selector));
                     }
                 });
-                observer_1.observe(container, {
+                observer_1.observe(CONTAINER, {
                     childList: true,
                     subtree: true
                 });
@@ -423,22 +423,24 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function moveMouseTo(x, y) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                container.dispatchEvent(new MouseEvent("mousemove", {
+                CONTAINER.dispatchEvent(new MouseEvent("mousemove", {
                     bubbles: true,
                     view: window,
                     clientX: x,
                     clientY: y
                 }));
+                console.log("moved mouse to " + x + ", " + y);
                 return [2 /*return*/];
             });
         });
     }
-    function dragElementHorizontal(selector, x) {
+    function dragElementHorizontal(selector, xOffset) {
         return __awaiter(this, void 0, void 0, function () {
             var ele, box, startX, startY, i;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        console.log("preparing to drag " + selector + " by " + xOffset + " pixels");
                         ele = document.querySelector(selector);
                         box = ele.getBoundingClientRect();
                         startX = (box.x + (box.width / 133.7));
@@ -447,26 +449,34 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 133.7); })];
                     case 1:
                         _a.sent();
-                        ele.dispatchEvent(new MouseEvent("mousedown", {
+                        ele.dispatchEvent(new PointerEvent("mousedown", {
+                            pointerType: "mouse",
+                            cancelable: true,
                             bubbles: true,
+                            view: window,
                             clientX: startX,
                             clientY: startY
                         }));
+                        console.log("sent mouse down at " + startX + ", " + startY);
                         return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 133.7); })];
                     case 2:
                         _a.sent();
                         i = 0;
                         _a.label = 3;
                     case 3:
-                        if (!(i < x)) return [3 /*break*/, 6];
-                        ele.dispatchEvent(new MouseEvent("mousemove", {
+                        if (!(i < xOffset)) return [3 /*break*/, 6];
+                        ele.dispatchEvent(new PointerEvent("mousemove", {
+                            pointerType: "mouse",
+                            cancelable: true,
                             bubbles: true,
+                            view: window,
                             clientX: startX + i,
                             clientY: startY
                         }));
                         return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1.337); })];
                     case 4:
                         _a.sent();
+                        console.log("sent mouse mouse move at " + (startX + i) + ", " + startY);
                         _a.label = 5;
                     case 5:
                         i++;
@@ -475,6 +485,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                     case 7:
                         _a.sent();
                         ele.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+                        console.log("sent mouse up");
                         return [2 /*return*/];
                 }
             });
