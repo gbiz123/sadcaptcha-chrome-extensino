@@ -54,7 +54,8 @@ interface Request {
 		INNER: ".captcha-verify-container > div > div > div > img.cap-absolute",
 		OUTER: ".captcha-verify-container > div > div > div > img:first-child",
 		SLIDE_BAR: ".captcha-verify-container > div > div > div.cap-w-full > div.cap-rounded-full",
-		SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
+		//SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
+		SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
 		UNIQUE_IDENTIFIER: ".captcha-verify-container > div > div > div > img.cap-absolute"
 	}
 
@@ -68,7 +69,8 @@ interface Request {
 	const PuzzleV2 = {
 		PIECE: ".captcha-verify-container .cap-absolute img",
 		PUZZLE: "#captcha-verify-image",
-		SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
+		//SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
+		SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
 		UNIQUE_IDENTIFIER: ".captcha-verify-container #captcha-verify-image"
 	}
 
@@ -351,9 +353,25 @@ interface Request {
 		let startY = (box.y + (box.height / 133.7))
 		moveMouseTo(startX, startY)
 		await new Promise(r => setTimeout(r, 133.7));
+		//ele.dispatchEvent(
+		//	new PointerEvent("pointerover", {
+		//		pointerType: "mouse",
+		//		width: 1,
+		//		height: 1,
+		//		pointerId: 0,
+		//		cancelable: true,
+		//		bubbles: true,
+		//		view: window,
+		//		clientX: startX,
+		//		clientY: startY
+		//	})
+		//)
+		await new Promise(r => setTimeout(r, 133.7));
 		ele.dispatchEvent(
 			new PointerEvent("mousedown", {
 				pointerType: "mouse",
+				width: 1,
+				height: 1,
 				cancelable: true,
 				bubbles: true,
 				view: window,
@@ -363,22 +381,35 @@ interface Request {
 		)
 		console.log("sent mouse down at " + startX + ", " + startY)
 		await new Promise(r => setTimeout(r, 133.7));
-		for (let i = 0; i < xOffset; i++) {
+		let pixel = 0
+		for (pixel = 0; pixel < xOffset; pixel++) {
 			ele.dispatchEvent(
 				new PointerEvent("mousemove", {
 					pointerType: "mouse",
+					width: 1,
+					height: 1,
 					cancelable: true,
 					bubbles: true,
 					view: window,
-					clientX: startX + i,
+					clientX: startX + pixel,
 					clientY: startY
 				})
 			)
 			await new Promise(r => setTimeout(r, 1.337));
-			console.log("sent mouse mouse move at " + (startX + i) + ", " + startY)
+			console.log("sent mouse mouse move at " + (startX + pixel) + ", " + startY)
 		}
 		await new Promise(r => setTimeout(r, 133.7));
-		ele.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }))
+		ele.dispatchEvent(new PointerEvent("mouseup", {
+					pointerType: "mouse",
+					width: 1,
+					height: 1,
+					cancelable: true,
+					bubbles: true,
+					view: window,
+					clientX: pixel,
+					clientY: startY
+				})
+			)
 		console.log("sent mouse up")
 	}
 
