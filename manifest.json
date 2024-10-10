@@ -18,6 +18,9 @@
       ]
     }
   ],
+  "permissions": [
+	  "debugger"
+  ],
   "browser_specific_settings": {
     "gecko": {
       "id": "greg@toughdata.net"
