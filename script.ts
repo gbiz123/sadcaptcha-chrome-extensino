@@ -26,8 +26,7 @@ const RotateV2 = {
 	INNER: ".captcha-verify-container > div > div > div > img.cap-absolute",
 	OUTER: ".captcha-verify-container > div > div > div > img:first-child",
 	SLIDE_BAR: ".captcha-verify-container > div > div > div.cap-w-full > div.cap-rounded-full",
-	//SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
-	SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
+	SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
 	UNIQUE_IDENTIFIER: ".captcha-verify-container > div > div > div > img.cap-absolute"
 }
 
@@ -41,8 +40,7 @@ const PuzzleV1 = {
 const PuzzleV2 = {
 	PIECE: ".captcha-verify-container .cap-absolute img",
 	PUZZLE: "#captcha-verify-image",
-	//SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
-	SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
+	SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
 	UNIQUE_IDENTIFIER: ".captcha-verify-container #captcha-verify-image"
 }
 
@@ -341,15 +339,36 @@ async function dragElementHorizontal(selector: string, xOffset: number): Promise
 			clientY: startY
 		})
 	)
+	ele.dispatchEvent(
+		new DragEvent("dragstart", {
+			cancelable: true,
+			bubbles: true,
+			view: window,
+			clientX: startX,
+			clientY: startY
+		})
+	)
 	console.log("sent mouse down at " + startX + ", " + startY)
 	await new Promise(r => setTimeout(r, 133.7));
 	let pixel = 0
+	// should actually be a DragEvent!
 	for (pixel = 0; pixel < xOffset; pixel++) {
+		// V1 responds to PointerEvents
 		ele.dispatchEvent(
 			new PointerEvent("mousemove", {
 				pointerType: "mouse",
 				width: 1,
 				height: 1,
+				cancelable: true,
+				bubbles: true,
+				view: window,
+				clientX: startX + pixel,
+				clientY: startY
+			})
+		)
+		// V2 responds to dragevents
+		ele.dispatchEvent(
+			new DragEvent("drag", {
 				cancelable: true,
 				bubbles: true,
 				view: window,
@@ -372,6 +391,15 @@ async function dragElementHorizontal(selector: string, xOffset: number): Promise
 				clientY: startY
 			})
 		)
+	ele.dispatchEvent(
+		new DragEvent("dragend", {
+			cancelable: true,
+			bubbles: true,
+			view: window,
+			clientX: pixel,
+			clientY: startY
+		})
+	)
 	console.log("sent mouse up")
 }
 
