@@ -548,8 +548,9 @@ async function solvePuzzleV2(): Promise<void> {
 		let pieceImg = await fetchImageBase64(pieceSrc)
 		let solution = await puzzleApiCall(puzzleImg, pieceImg)
 		let puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE)
-		let distance = await computePuzzleSlideDistance(solution, puzzleImageEle)
-		await dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance)
+		let buttonLengthAdjustment = document.querySelector(PuzzleV2.SLIDER_DRAG_BUTTON).getBoundingClientRect().width / 2
+		let distance = await computePuzzleSlideDistance(solution, puzzleImageEle) 
+		await dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance - buttonLengthAdjustment)
 		if (await checkCaptchaSuccess())
 			return;
 	}
