@@ -41,6 +41,7 @@ const PuzzleV2 = {
 	PIECE: ".captcha-verify-container .cap-absolute img",
 	PUZZLE: "#captcha-verify-image",
 	SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
+    PIECE_IMAGE_CONTAINER: ".captcha-verify-container div[draggable=true]:has(img[draggable=false])",
 	UNIQUE_IDENTIFIER: ".captcha-verify-container #captcha-verify-image"
 }
 
@@ -319,7 +320,7 @@ async function moveMouseTo(x: number, y: number): Promise<void> {
 	console.log("moved mouse to " + x + ", " + y)
 }
 
-async function dragElementHorizontal(selector: string, xOffset: number): Promise<void> {
+async function dragElementHorizontal(selector: string, xOffset: number, breakCondition: Function = null): Promise<void> {
 	console.log("preparing to drag " + selector + " by " + xOffset + " pixels")
 	let ele = document.querySelector(selector)
 	let box = ele.getBoundingClientRect()
@@ -378,6 +379,14 @@ async function dragElementHorizontal(selector: string, xOffset: number): Promise
 		)
 		await new Promise(r => setTimeout(r, 1.337));
 		console.log("sent mouse mouse move at " + (startX + pixel) + ", " + startY)
+
+		// if this callback evaluates to true, stop the loop
+		if (breakCondition !== null) {
+			if (breakCondition()) {
+				console.log("break condition has been reached. exiting mouse drag loop")
+				break
+			}
+		}
 	}
 	await new Promise(r => setTimeout(r, 133.7));
 	ele.dispatchEvent(new PointerEvent("mouseup", {
@@ -550,7 +559,22 @@ async function solvePuzzleV2(): Promise<void> {
 		let puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE)
 		let buttonLengthAdjustment = document.querySelector(PuzzleV2.SLIDER_DRAG_BUTTON).getBoundingClientRect().width / 2
 		let distance = await computePuzzleSlideDistance(solution, puzzleImageEle) 
-		await dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance - buttonLengthAdjustment)
+
+		function pieceHasReachedTargetLocation(): boolean {
+			let piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER)
+			let style = piece.getAttribute("style")
+			let translateX = parseInt(style[style.search("(?<=translateX\\()[0-9]+")])
+			if (translateX == distance)
+				return true
+			else
+				return false
+		}
+
+		await dragElementHorizontal(
+			PuzzleV2.SLIDER_DRAG_BUTTON,
+			distance - buttonLengthAdjustment,
+			() => pieceHasReachedTargetLocation()
+		)
 		if (await checkCaptchaSuccess())
 			return;
 	}

@@ -59,7 +59,6 @@ var RotateV2 = {
     OUTER: ".captcha-verify-container > div > div > div > img:first-child",
     SLIDE_BAR: ".captcha-verify-container > div > div > div.cap-w-full > div.cap-rounded-full",
     SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
-    //SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
     UNIQUE_IDENTIFIER: ".captcha-verify-container > div > div > div > img.cap-absolute"
 };
 var PuzzleV1 = {
@@ -71,8 +70,7 @@ var PuzzleV1 = {
 var PuzzleV2 = {
     PIECE: ".captcha-verify-container .cap-absolute img",
     PUZZLE: "#captcha-verify-image",
-    //SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
-    SLIDER_DRAG_BUTTON: ".secsdk-captcha-drag-icon",
+    SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
     UNIQUE_IDENTIFIER: ".captcha-verify-container #captcha-verify-image"
 };
 var ShapesV1 = {
@@ -828,7 +826,7 @@ function solvePuzzleV1() {
 }
 function solvePuzzleV2() {
     return __awaiter(this, void 0, void 0, function () {
-        var i, puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, distance;
+        var i, puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, buttonLengthAdjustment, distance;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -852,10 +850,11 @@ function solvePuzzleV2() {
                 case 6:
                     solution = _a.sent();
                     puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE);
+                    buttonLengthAdjustment = document.querySelector(PuzzleV2.SLIDER_DRAG_BUTTON).getBoundingClientRect().width / 2;
                     return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
                 case 7:
                     distance = _a.sent();
-                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance)];
+                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance - buttonLengthAdjustment)];
                 case 8:
                     _a.sent();
                     return [4 /*yield*/, checkCaptchaSuccess()];
