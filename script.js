@@ -71,6 +71,7 @@ var PuzzleV2 = {
     PIECE: ".captcha-verify-container .cap-absolute img",
     PUZZLE: "#captcha-verify-image",
     SLIDER_DRAG_BUTTON: "div[draggable=true]:has(.secsdk-captcha-drag-icon)",
+    PIECE_IMAGE_CONTAINER: ".captcha-verify-container div[draggable=true]:has(img[draggable=false])",
     UNIQUE_IDENTIFIER: ".captcha-verify-container #captcha-verify-image"
 };
 var ShapesV1 = {
@@ -415,9 +416,10 @@ function moveMouseTo(x, y) {
         });
     });
 }
-function dragElementHorizontal(selector, xOffset) {
-    return __awaiter(this, void 0, void 0, function () {
+function dragElementHorizontal(selector_1, xOffset_1) {
+    return __awaiter(this, arguments, void 0, function (selector, xOffset, breakCondition) {
         var ele, box, startX, startY, pixel;
+        if (breakCondition === void 0) { breakCondition = null; }
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -479,6 +481,13 @@ function dragElementHorizontal(selector, xOffset) {
                 case 4:
                     _a.sent();
                     console.log("sent mouse mouse move at " + (startX + pixel) + ", " + startY);
+                    // if this callback evaluates to true, stop the loop
+                    if (breakCondition !== null) {
+                        if (breakCondition()) {
+                            console.log("break condition has been reached. exiting mouse drag loop");
+                            return [3 /*break*/, 6];
+                        }
+                    }
                     _a.label = 5;
                 case 5:
                     pixel++;
@@ -826,46 +835,68 @@ function solvePuzzleV1() {
 }
 function solvePuzzleV2() {
     return __awaiter(this, void 0, void 0, function () {
-        var i, puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, buttonLengthAdjustment, distance;
+        var _loop_1, i, state_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    _loop_1 = function (i) {
+                        function pieceHasReachedTargetLocation() {
+                            var piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER);
+                            var style = piece.getAttribute("style");
+                            var translateX = parseInt(style[style.search("(?<=translateX\\()[0-9]+")]);
+                            if (translateX == distance)
+                                return true;
+                            else
+                                return false;
+                        }
+                        var puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, buttonLengthAdjustment, distance;
+                        return __generator(this, function (_b) {
+                            switch (_b.label) {
+                                case 0: return [4 /*yield*/, getImageSource(PuzzleV2.PUZZLE)];
+                                case 1:
+                                    puzzleSrc = _b.sent();
+                                    return [4 /*yield*/, getImageSource(PuzzleV2.PIECE)];
+                                case 2:
+                                    pieceSrc = _b.sent();
+                                    return [4 /*yield*/, fetchImageBase64(puzzleSrc)];
+                                case 3:
+                                    puzzleImg = _b.sent();
+                                    return [4 /*yield*/, fetchImageBase64(pieceSrc)];
+                                case 4:
+                                    pieceImg = _b.sent();
+                                    return [4 /*yield*/, puzzleApiCall(puzzleImg, pieceImg)];
+                                case 5:
+                                    solution = _b.sent();
+                                    puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE);
+                                    buttonLengthAdjustment = document.querySelector(PuzzleV2.SLIDER_DRAG_BUTTON).getBoundingClientRect().width / 2;
+                                    return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
+                                case 6:
+                                    distance = _b.sent();
+                                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance - buttonLengthAdjustment, function () { return pieceHasReachedTargetLocation(); })];
+                                case 7:
+                                    _b.sent();
+                                    return [4 /*yield*/, checkCaptchaSuccess()];
+                                case 8:
+                                    if (_b.sent())
+                                        return [2 /*return*/, { value: void 0 }];
+                                    return [2 /*return*/];
+                            }
+                        });
+                    };
                     i = 0;
                     _a.label = 1;
                 case 1:
-                    if (!(i < 3)) return [3 /*break*/, 11];
-                    return [4 /*yield*/, getImageSource(PuzzleV2.PUZZLE)];
+                    if (!(i < 3)) return [3 /*break*/, 4];
+                    return [5 /*yield**/, _loop_1(i)];
                 case 2:
-                    puzzleSrc = _a.sent();
-                    return [4 /*yield*/, getImageSource(PuzzleV2.PIECE)];
+                    state_1 = _a.sent();
+                    if (typeof state_1 === "object")
+                        return [2 /*return*/, state_1.value];
+                    _a.label = 3;
                 case 3:
-                    pieceSrc = _a.sent();
-                    return [4 /*yield*/, fetchImageBase64(puzzleSrc)];
-                case 4:
-                    puzzleImg = _a.sent();
-                    return [4 /*yield*/, fetchImageBase64(pieceSrc)];
-                case 5:
-                    pieceImg = _a.sent();
-                    return [4 /*yield*/, puzzleApiCall(puzzleImg, pieceImg)];
-                case 6:
-                    solution = _a.sent();
-                    puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE);
-                    buttonLengthAdjustment = document.querySelector(PuzzleV2.SLIDER_DRAG_BUTTON).getBoundingClientRect().width / 2;
-                    return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
-                case 7:
-                    distance = _a.sent();
-                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance - buttonLengthAdjustment)];
-                case 8:
-                    _a.sent();
-                    return [4 /*yield*/, checkCaptchaSuccess()];
-                case 9:
-                    if (_a.sent())
-                        return [2 /*return*/];
-                    _a.label = 10;
-                case 10:
                     i++;
                     return [3 /*break*/, 1];
-                case 11: return [2 /*return*/];
+                case 4: return [2 /*return*/];
             }
         });
     });
