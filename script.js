@@ -849,7 +849,7 @@ function solvePuzzleV2() {
                             else
                                 return false;
                         }
-                        var puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, buttonLengthAdjustment, distance;
+                        var puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, distance;
                         return __generator(this, function (_b) {
                             switch (_b.label) {
                                 case 0: return [4 /*yield*/, getImageSource(PuzzleV2.PUZZLE)];
@@ -868,11 +868,10 @@ function solvePuzzleV2() {
                                 case 5:
                                     solution = _b.sent();
                                     puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE);
-                                    buttonLengthAdjustment = document.querySelector(PuzzleV2.SLIDER_DRAG_BUTTON).getBoundingClientRect().width / 2;
                                     return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
                                 case 6:
                                     distance = _b.sent();
-                                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance - buttonLengthAdjustment, function () { return pieceHasReachedTargetLocation(); })];
+                                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance, function () { return pieceHasReachedTargetLocation(); })];
                                 case 7:
                                     _b.sent();
                                     return [4 /*yield*/, checkCaptchaSuccess()];

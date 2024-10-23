@@ -379,7 +379,6 @@ async function dragElementHorizontal(selector: string, xOffset: number, breakCon
 		)
 		await new Promise(r => setTimeout(r, 1.337));
 		console.log("sent mouse mouse move at " + (startX + pixel) + ", " + startY)
-
 		// if this callback evaluates to true, stop the loop
 		if (breakCondition !== null) {
 			if (breakCondition()) {
@@ -557,7 +556,6 @@ async function solvePuzzleV2(): Promise<void> {
 		let pieceImg = await fetchImageBase64(pieceSrc)
 		let solution = await puzzleApiCall(puzzleImg, pieceImg)
 		let puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE)
-		let buttonLengthAdjustment = document.querySelector(PuzzleV2.SLIDER_DRAG_BUTTON).getBoundingClientRect().width / 2
 		let distance = await computePuzzleSlideDistance(solution, puzzleImageEle) 
 
 		function pieceHasReachedTargetLocation(): boolean {
@@ -572,7 +570,7 @@ async function solvePuzzleV2(): Promise<void> {
 
 		await dragElementHorizontal(
 			PuzzleV2.SLIDER_DRAG_BUTTON,
-			distance - buttonLengthAdjustment,
+			distance,
 			() => pieceHasReachedTargetLocation()
 		)
 		if (await checkCaptchaSuccess())
