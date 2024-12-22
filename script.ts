@@ -356,6 +356,18 @@ async function dragElementHorizontal(selector: string, xOffset: number, breakCon
 	for (pixel = 0; pixel < xOffset; pixel++) {
 		// V1 responds to PointerEvents
 		ele.dispatchEvent(
+			new PointerEvent("mouseover", {
+				pointerType: "mouse",
+				width: 1,
+				height: 1,
+				cancelable: true,
+				bubbles: true,
+				view: window,
+				clientX: startX + pixel,
+				clientY: startY
+			})
+		)
+		ele.dispatchEvent(
 			new PointerEvent("mousemove", {
 				pointerType: "mouse",
 				width: 1,
