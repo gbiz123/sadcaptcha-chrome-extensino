@@ -8,8 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -39,7 +39,6 @@ var rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey=";
 var puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey=";
 var shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey=";
 var iconUrl = "https://www.sadcaptcha.com/api/v1/icon?licenseKey=";
-var corsProxy = "https://corsproxy.io/?url=";
 var successXpath = "//*[contains(text(), 'Verification complete')]";
 var apiHeaders = new Headers({ "Content-Type": "application/json" });
 var CONTAINER = document.documentElement || document.body;
@@ -385,7 +384,7 @@ function fetchImageBase64(imageSource) {
         var res, img, reader;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch(corsProxy + imageSource)];
+                case 0: return [4 /*yield*/, fetch(imageSource)];
                 case 1:
                     res = _a.sent();
                     return [4 /*yield*/, res.blob()];

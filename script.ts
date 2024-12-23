@@ -4,7 +4,6 @@ const rotateUrl = "https://www.sadcaptcha.com/api/v1/rotate?licenseKey="
 const puzzleUrl = "https://www.sadcaptcha.com/api/v1/puzzle?licenseKey="
 const shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey="
 const iconUrl = "https://www.sadcaptcha.com/api/v1/icon?licenseKey="
-const corsProxy = "https://corsproxy.io/?url="
 const successXpath = "//*[contains(text(), 'Verification complete')]"
 const apiHeaders = new Headers({ "Content-Type": "application/json" })
 const CONTAINER: Element = document.documentElement || document.body
@@ -297,7 +296,7 @@ function getBase64StringFromDataURL(dataUrl: string): string {
 }
 
 async function fetchImageBase64(imageSource: string): Promise<string> {
-	let res = await fetch(corsProxy + imageSource)
+	let res = await fetch(imageSource)
 	let img = await res.blob()
 	let reader = new FileReader()
 	reader.readAsDataURL(img)
