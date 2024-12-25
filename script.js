@@ -852,11 +852,17 @@ function solvePuzzleV2() {
                         function pieceHasReachedTargetLocation() {
                             var piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER);
                             var style = piece.getAttribute("style");
-                            var translateX = parseInt(style[style.search("(?<=translateX\\()[0-9]+")]);
-                            if (translateX == distance)
+                            console.log("piece style: " + style);
+                            var translateX = parseInt(style.match("(?<=translateX\\()[0-9]+").toString());
+                            console.debug("translateX: " + translateX);
+                            if (translateX >= distance) {
+                                console.debug("piece has reached target location");
                                 return true;
-                            else
+                            }
+                            else {
+                                console.debug("piece has not reached target location");
                                 return false;
+                            }
                         }
                         var puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, distance;
                         return __generator(this, function (_b) {
@@ -880,7 +886,7 @@ function solvePuzzleV2() {
                                     return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
                                 case 6:
                                     distance = _b.sent();
-                                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance, function () { return pieceHasReachedTargetLocation(); })];
+                                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance, pieceHasReachedTargetLocation)];
                                 case 7:
                                     _b.sent();
                                     return [4 /*yield*/, checkCaptchaSuccess()];

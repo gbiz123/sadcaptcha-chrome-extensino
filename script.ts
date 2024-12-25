@@ -572,17 +572,22 @@ async function solvePuzzleV2(): Promise<void> {
 		function pieceHasReachedTargetLocation(): boolean {
 			let piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER)
 			let style = piece.getAttribute("style")
-			let translateX = parseInt(style[style.search("(?<=translateX\\()[0-9]+")])
-			if (translateX == distance)
+			console.log("piece style: " + style)
+			let translateX = parseInt(style.match("(?<=translateX\\()[0-9]+").toString());
+			console.debug("translateX: " + translateX)
+			if (translateX >= distance) {
+				console.debug("piece has reached target location")
 				return true
-			else
+			} else {
+				console.debug("piece has not reached target location")
 				return false
+			}
 		}
 
 		await dragElementHorizontal(
 			PuzzleV2.SLIDER_DRAG_BUTTON,
 			distance,
-			() => pieceHasReachedTargetLocation()
+			pieceHasReachedTargetLocation
 		)
 		if (await checkCaptchaSuccess())
 			return;
