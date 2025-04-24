@@ -676,7 +676,7 @@ async function solveCaptchaLoop() {
 				break
 		}
 	}
-	await new Promise(r => setTimeout(r, 30000));
+	await new Promise(r => setTimeout(r, 5000));
 	isCurrentSolve = false
 	await solveCaptchaLoop()
 }
@@ -696,4 +696,3 @@ chrome.runtime.onMessage.addListener(
 	}
 )
 solveCaptchaLoop()
-
