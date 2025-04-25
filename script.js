@@ -417,7 +417,7 @@ function moveMouseTo(x, y) {
 }
 function dragElementHorizontal(selector_1, xOffset_1) {
     return __awaiter(this, arguments, void 0, function (selector, xOffset, breakCondition) {
-        var ele, box, startX, startY, pixel;
+        var ele, box, startX, startY, pixel, _loop_1, state_1;
         if (breakCondition === void 0) { breakCondition = null; }
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -453,50 +453,65 @@ function dragElementHorizontal(selector_1, xOffset_1) {
                 case 2:
                     _a.sent();
                     pixel = 0;
+                    _loop_1 = function () {
+                        var pauseTime;
+                        return __generator(this, function (_b) {
+                            switch (_b.label) {
+                                case 0:
+                                    // V1 responds to PointerEvents
+                                    ele.dispatchEvent(new PointerEvent("mouseover", {
+                                        pointerType: "mouse",
+                                        width: 1,
+                                        height: 1,
+                                        cancelable: true,
+                                        bubbles: true,
+                                        view: window,
+                                        clientX: startX + pixel,
+                                        clientY: startY
+                                    }));
+                                    ele.dispatchEvent(new PointerEvent("mousemove", {
+                                        pointerType: "mouse",
+                                        width: 1,
+                                        height: 1,
+                                        cancelable: true,
+                                        bubbles: true,
+                                        view: window,
+                                        clientX: startX + pixel,
+                                        clientY: startY
+                                    }));
+                                    // V2 responds to dragevents
+                                    ele.dispatchEvent(new DragEvent("drag", {
+                                        cancelable: true,
+                                        bubbles: true,
+                                        view: window,
+                                        clientX: startX + pixel,
+                                        clientY: startY
+                                    }));
+                                    pauseTime = (200 / (pixel + 1)) + (Math.random() * 5);
+                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, pauseTime); })];
+                                case 1:
+                                    _b.sent();
+                                    console.log("sent mouse mouse move at " + (startX + pixel) + ", " + startY);
+                                    // if this callback evaluates to true, stop the loop
+                                    if (breakCondition !== null) {
+                                        if (breakCondition()) {
+                                            console.log("break condition has been reached. exiting mouse drag loop");
+                                            return [2 /*return*/, "break"];
+                                        }
+                                    }
+                                    return [2 /*return*/];
+                            }
+                        });
+                    };
                     pixel = 0;
                     _a.label = 3;
                 case 3:
                     if (!(pixel < xOffset)) return [3 /*break*/, 6];
-                    // V1 responds to PointerEvents
-                    ele.dispatchEvent(new PointerEvent("mouseover", {
-                        pointerType: "mouse",
-                        width: 1,
-                        height: 1,
-                        cancelable: true,
-                        bubbles: true,
-                        view: window,
-                        clientX: startX + pixel,
-                        clientY: startY
-                    }));
-                    ele.dispatchEvent(new PointerEvent("mousemove", {
-                        pointerType: "mouse",
-                        width: 1,
-                        height: 1,
-                        cancelable: true,
-                        bubbles: true,
-                        view: window,
-                        clientX: startX + pixel,
-                        clientY: startY
-                    }));
-                    // V2 responds to dragevents
-                    ele.dispatchEvent(new DragEvent("drag", {
-                        cancelable: true,
-                        bubbles: true,
-                        view: window,
-                        clientX: startX + pixel,
-                        clientY: startY
-                    }));
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1.337); })];
+                    return [5 /*yield**/, _loop_1()];
                 case 4:
-                    _a.sent();
-                    console.log("sent mouse mouse move at " + (startX + pixel) + ", " + startY);
-                    // if this callback evaluates to true, stop the loop
-                    if (breakCondition !== null) {
-                        if (breakCondition()) {
-                            console.log("break condition has been reached. exiting mouse drag loop");
-                            return [3 /*break*/, 6];
-                        }
-                    }
+                    state_1 = _a.sent();
+                    if (state_1 === "break")
+                        return [3 /*break*/, 6];
                     _a.label = 5;
                 case 5:
                     pixel++;
@@ -844,11 +859,11 @@ function solvePuzzleV1() {
 }
 function solvePuzzleV2() {
     return __awaiter(this, void 0, void 0, function () {
-        var _loop_1, i, state_1;
+        var _loop_2, i, state_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _loop_1 = function (i) {
+                    _loop_2 = function (i) {
                         function pieceHasReachedTargetLocation() {
                             var piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER);
                             var style = piece.getAttribute("style");
@@ -901,11 +916,11 @@ function solvePuzzleV2() {
                     _a.label = 1;
                 case 1:
                     if (!(i < 3)) return [3 /*break*/, 4];
-                    return [5 /*yield**/, _loop_1(i)];
+                    return [5 /*yield**/, _loop_2(i)];
                 case 2:
-                    state_1 = _a.sent();
-                    if (typeof state_1 === "object")
-                        return [2 /*return*/, state_1.value];
+                    state_2 = _a.sent();
+                    if (typeof state_2 === "object")
+                        return [2 /*return*/, state_2.value];
                     _a.label = 3;
                 case 3:
                     i++;
@@ -1079,7 +1094,7 @@ function solveCaptchaLoop() {
                                 break;
                         }
                     }
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 30000); })];
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 5000); })];
                 case 7:
                     _a.sent();
                     isCurrentSolve = false;

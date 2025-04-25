@@ -388,7 +388,9 @@ async function dragElementHorizontal(selector: string, xOffset: number, breakCon
 				clientY: startY
 			})
 		)
-		await new Promise(r => setTimeout(r, 1.337));
+		// speed increases as mouse is dragged
+		let pauseTime = (200 / (pixel + 1)) + (Math.random() * 5) 
+		await new Promise(r => setTimeout(r, pauseTime));
 		console.log("sent mouse mouse move at " + (startX + pixel) + ", " + startY)
 		// if this callback evaluates to true, stop the loop
 		if (breakCondition !== null) {
