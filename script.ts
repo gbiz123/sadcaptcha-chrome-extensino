@@ -635,53 +635,63 @@ async function solveIconV2(): Promise<void> {
 }
 
 
-let isCurrentSolve: boolean
+let isCurrentSolve: boolean = false
 async function solveCaptchaLoop() {
-	const _: Element = await waitForAnyElementInList([Wrappers.V1, Wrappers.V2])
-	const captchaType: CaptchaType = await identifyCaptcha()
-	try {
-		if (await creditsApiCall() <= 0) {
-			console.log("out of credits")
-			alert("Out of SadCaptcha credits. Please boost your balance on sadcaptcha.com/dashboard.")
-			return
-		}
-	} catch (e) {
-		// Catch the error because we dont want to break the solver just because we failed to fetch the credits API
-		console.log("error making check credits api call: " + e)
-	}
 	if (!isCurrentSolve) {
+		const _: Element = await waitForAnyElementInList([Wrappers.V1, Wrappers.V2])
+		const captchaType: CaptchaType = await identifyCaptcha()
+
+		try {
+			if (await creditsApiCall() <= 0) {
+				console.log("out of credits")
+				alert("Out of SadCaptcha credits. Please boost your balance on sadcaptcha.com/dashboard.")
+				return
+			}
+		} catch (e) {
+			// Catch the error because we dont want to break the solver just because we failed to fetch the credits API
+			console.log("error making check credits api call: " + e)
+		}
+		
 		isCurrentSolve = true
-		switch (captchaType) {
-			case CaptchaType.PUZZLE_V1:
-				solvePuzzleV1()
-				break
-			case CaptchaType.ROTATE_V1:
-				solveRotateV1()
-				break
-			case CaptchaType.SHAPES_V1:
-				solveShapesV1()
-				break
-			case CaptchaType.ICON_V1:
-				solveIconV1()
-				break
-			case CaptchaType.PUZZLE_V2:
-				solvePuzzleV2()
-				break
-			case CaptchaType.ROTATE_V2:
-				solveRotateV2()
-				break
-			case CaptchaType.SHAPES_V2:
-				solveShapesV2()
-				break
-			case CaptchaType.ICON_V2:
-				solveIconV2()
-				break
+		try {
+			switch (captchaType) {
+				case CaptchaType.PUZZLE_V1:
+					solvePuzzleV1()
+					break
+				case CaptchaType.ROTATE_V1:
+					solveRotateV1()
+					break
+				case CaptchaType.SHAPES_V1:
+					solveShapesV1()
+					break
+				case CaptchaType.ICON_V1:
+					solveIconV1()
+					break
+				case CaptchaType.PUZZLE_V2:
+					solvePuzzleV2()
+					break
+				case CaptchaType.ROTATE_V2:
+					solveRotateV2()
+					break
+				case CaptchaType.SHAPES_V2:
+					solveShapesV2()
+					break
+				case CaptchaType.ICON_V2:
+					solveIconV2()
+					break
+				} 
+			} catch (err) {
+					console.log("error solving captcha")
+					console.error(err)
+					console.log("restarting captcha loop")
+			} finally {
+				isCurrentSolve = false
+				await new Promise(r => setTimeout(r, 5000));
+				await solveCaptchaLoop()
+			}
 		}
 	}
-	await new Promise(r => setTimeout(r, 5000));
-	isCurrentSolve = false
-	await solveCaptchaLoop()
-}
+
 
 // Api key is passed from extension via message
 let apiKey: string = localStorage.getItem("sadCaptchaKey");
