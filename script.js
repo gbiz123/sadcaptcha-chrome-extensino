@@ -859,73 +859,47 @@ function solvePuzzleV1() {
 }
 function solvePuzzleV2() {
     return __awaiter(this, void 0, void 0, function () {
-        var _loop_2, i, state_2;
+        function pieceHasReachedTargetLocation() {
+            var piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER);
+            var style = piece.getAttribute("style");
+            console.log("piece style: " + style);
+            var translateX = parseInt(style.match("(?<=translateX\\()[0-9]+").toString());
+            console.debug("translateX: " + translateX);
+            if (translateX >= distance) {
+                console.debug("piece has reached target location");
+                return true;
+            }
+            else {
+                console.debug("piece has not reached target location");
+                return false;
+            }
+        }
+        var puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, distance;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    _loop_2 = function (i) {
-                        function pieceHasReachedTargetLocation() {
-                            var piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER);
-                            var style = piece.getAttribute("style");
-                            console.log("piece style: " + style);
-                            var translateX = parseInt(style.match("(?<=translateX\\()[0-9]+").toString());
-                            console.debug("translateX: " + translateX);
-                            if (translateX >= distance) {
-                                console.debug("piece has reached target location");
-                                return true;
-                            }
-                            else {
-                                console.debug("piece has not reached target location");
-                                return false;
-                            }
-                        }
-                        var puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, distance;
-                        return __generator(this, function (_b) {
-                            switch (_b.label) {
-                                case 0: return [4 /*yield*/, getImageSource(PuzzleV2.PUZZLE)];
-                                case 1:
-                                    puzzleSrc = _b.sent();
-                                    return [4 /*yield*/, getImageSource(PuzzleV2.PIECE)];
-                                case 2:
-                                    pieceSrc = _b.sent();
-                                    return [4 /*yield*/, fetchImageBase64(puzzleSrc)];
-                                case 3:
-                                    puzzleImg = _b.sent();
-                                    return [4 /*yield*/, fetchImageBase64(pieceSrc)];
-                                case 4:
-                                    pieceImg = _b.sent();
-                                    return [4 /*yield*/, puzzleApiCall(puzzleImg, pieceImg)];
-                                case 5:
-                                    solution = _b.sent();
-                                    puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE);
-                                    return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
-                                case 6:
-                                    distance = _b.sent();
-                                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance, pieceHasReachedTargetLocation)];
-                                case 7:
-                                    _b.sent();
-                                    return [4 /*yield*/, checkCaptchaSuccess()];
-                                case 8:
-                                    if (_b.sent())
-                                        return [2 /*return*/, { value: void 0 }];
-                                    return [2 /*return*/];
-                            }
-                        });
-                    };
-                    i = 0;
-                    _a.label = 1;
+                case 0: return [4 /*yield*/, getImageSource(PuzzleV2.PUZZLE)];
                 case 1:
-                    if (!(i < 3)) return [3 /*break*/, 4];
-                    return [5 /*yield**/, _loop_2(i)];
+                    puzzleSrc = _a.sent();
+                    return [4 /*yield*/, getImageSource(PuzzleV2.PIECE)];
                 case 2:
-                    state_2 = _a.sent();
-                    if (typeof state_2 === "object")
-                        return [2 /*return*/, state_2.value];
-                    _a.label = 3;
+                    pieceSrc = _a.sent();
+                    return [4 /*yield*/, fetchImageBase64(puzzleSrc)];
                 case 3:
-                    i++;
-                    return [3 /*break*/, 1];
-                case 4: return [2 /*return*/];
+                    puzzleImg = _a.sent();
+                    return [4 /*yield*/, fetchImageBase64(pieceSrc)];
+                case 4:
+                    pieceImg = _a.sent();
+                    return [4 /*yield*/, puzzleApiCall(puzzleImg, pieceImg)];
+                case 5:
+                    solution = _a.sent();
+                    puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE);
+                    return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
+                case 6:
+                    distance = _a.sent();
+                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance, pieceHasReachedTargetLocation)];
+                case 7:
+                    _a.sent();
+                    return [2 /*return*/];
             }
         });
     });
