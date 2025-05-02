@@ -695,16 +695,20 @@ async function solveCaptchaLoop() {
 
 // Api key is passed from extension via message
 let apiKey: string = localStorage.getItem("sadCaptchaKey");
-chrome.runtime.onMessage.addListener(
-	function(request: Request, sender, sendResponse) {
-		if (request.apiKey !== null) {
-			console.log("Api key: " + request.apiKey)
-			apiKey = request.apiKey
-			localStorage.setItem("sadCaptchaKey", apiKey)
-			sendResponse({ message: "API key set.", success: 1 })
-		} else {
-			sendResponse({ message: "API key cannot be empty.", success: 0 })
-		} 
-	}
-)
+try {
+	chrome.runtime.onMessage.addListener(
+		function(request: Request, sender, sendResponse) {
+			if (request.apiKey !== null) {
+				console.log("Api key: " + request.apiKey)
+				apiKey = request.apiKey
+				localStorage.setItem("sadCaptchaKey", apiKey)
+				sendResponse({ message: "API key set.", success: 1 })
+			} else {
+				sendResponse({ message: "API key cannot be empty.", success: 0 })
+			} 
+		}
+	)
+} catch (err) {
+	console.warn("Chrome runtime is not available")
+}
 solveCaptchaLoop()

@@ -859,47 +859,73 @@ function solvePuzzleV1() {
 }
 function solvePuzzleV2() {
     return __awaiter(this, void 0, void 0, function () {
-        function pieceHasReachedTargetLocation() {
-            var piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER);
-            var style = piece.getAttribute("style");
-            console.log("piece style: " + style);
-            var translateX = parseInt(style.match("(?<=translateX\\()[0-9]+").toString());
-            console.debug("translateX: " + translateX);
-            if (translateX >= distance) {
-                console.debug("piece has reached target location");
-                return true;
-            }
-            else {
-                console.debug("piece has not reached target location");
-                return false;
-            }
-        }
-        var puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, distance;
+        var _loop_2, i, state_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, getImageSource(PuzzleV2.PUZZLE)];
+                case 0:
+                    _loop_2 = function (i) {
+                        function pieceHasReachedTargetLocation() {
+                            var piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER);
+                            var style = piece.getAttribute("style");
+                            console.log("piece style: " + style);
+                            var translateX = parseInt(style.match("(?<=translateX\\()[0-9]+").toString());
+                            console.debug("translateX: " + translateX);
+                            if (translateX >= distance) {
+                                console.debug("piece has reached target location");
+                                return true;
+                            }
+                            else {
+                                console.debug("piece has not reached target location");
+                                return false;
+                            }
+                        }
+                        var puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, distance;
+                        return __generator(this, function (_b) {
+                            switch (_b.label) {
+                                case 0: return [4 /*yield*/, getImageSource(PuzzleV2.PUZZLE)];
+                                case 1:
+                                    puzzleSrc = _b.sent();
+                                    return [4 /*yield*/, getImageSource(PuzzleV2.PIECE)];
+                                case 2:
+                                    pieceSrc = _b.sent();
+                                    return [4 /*yield*/, fetchImageBase64(puzzleSrc)];
+                                case 3:
+                                    puzzleImg = _b.sent();
+                                    return [4 /*yield*/, fetchImageBase64(pieceSrc)];
+                                case 4:
+                                    pieceImg = _b.sent();
+                                    return [4 /*yield*/, puzzleApiCall(puzzleImg, pieceImg)];
+                                case 5:
+                                    solution = _b.sent();
+                                    puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE);
+                                    return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
+                                case 6:
+                                    distance = _b.sent();
+                                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance, pieceHasReachedTargetLocation)];
+                                case 7:
+                                    _b.sent();
+                                    return [4 /*yield*/, checkCaptchaSuccess()];
+                                case 8:
+                                    if (_b.sent())
+                                        return [2 /*return*/, { value: void 0 }];
+                                    return [2 /*return*/];
+                            }
+                        });
+                    };
+                    i = 0;
+                    _a.label = 1;
                 case 1:
-                    puzzleSrc = _a.sent();
-                    return [4 /*yield*/, getImageSource(PuzzleV2.PIECE)];
+                    if (!(i < 3)) return [3 /*break*/, 4];
+                    return [5 /*yield**/, _loop_2(i)];
                 case 2:
-                    pieceSrc = _a.sent();
-                    return [4 /*yield*/, fetchImageBase64(puzzleSrc)];
+                    state_2 = _a.sent();
+                    if (typeof state_2 === "object")
+                        return [2 /*return*/, state_2.value];
+                    _a.label = 3;
                 case 3:
-                    puzzleImg = _a.sent();
-                    return [4 /*yield*/, fetchImageBase64(pieceSrc)];
-                case 4:
-                    pieceImg = _a.sent();
-                    return [4 /*yield*/, puzzleApiCall(puzzleImg, pieceImg)];
-                case 5:
-                    solution = _a.sent();
-                    puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE);
-                    return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
-                case 6:
-                    distance = _a.sent();
-                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance, pieceHasReachedTargetLocation)];
-                case 7:
-                    _a.sent();
-                    return [2 /*return*/];
+                    i++;
+                    return [3 /*break*/, 1];
+                case 4: return [2 /*return*/];
             }
         });
     });
@@ -1010,13 +1036,15 @@ function solveIconV2() {
         });
     });
 }
-var isCurrentSolve;
+var isCurrentSolve = false;
 function solveCaptchaLoop() {
     return __awaiter(this, void 0, void 0, function () {
-        var _, captchaType, e_1;
+        var _, captchaType, e_1, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, waitForAnyElementInList([Wrappers.V1, Wrappers.V2])];
+                case 0:
+                    if (!!isCurrentSolve) return [3 /*break*/, 12];
+                    return [4 /*yield*/, waitForAnyElementInList([Wrappers.V1, Wrappers.V2])];
                 case 1:
                     _ = _a.sent();
                     return [4 /*yield*/, identifyCaptcha()];
@@ -1039,43 +1067,53 @@ function solveCaptchaLoop() {
                     console.log("error making check credits api call: " + e_1);
                     return [3 /*break*/, 6];
                 case 6:
-                    if (!isCurrentSolve) {
-                        isCurrentSolve = true;
-                        switch (captchaType) {
-                            case CaptchaType.PUZZLE_V1:
-                                solvePuzzleV1();
-                                break;
-                            case CaptchaType.ROTATE_V1:
-                                solveRotateV1();
-                                break;
-                            case CaptchaType.SHAPES_V1:
-                                solveShapesV1();
-                                break;
-                            case CaptchaType.ICON_V1:
-                                solveIconV1();
-                                break;
-                            case CaptchaType.PUZZLE_V2:
-                                solvePuzzleV2();
-                                break;
-                            case CaptchaType.ROTATE_V2:
-                                solveRotateV2();
-                                break;
-                            case CaptchaType.SHAPES_V2:
-                                solveShapesV2();
-                                break;
-                            case CaptchaType.ICON_V2:
-                                solveIconV2();
-                                break;
-                        }
-                    }
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 5000); })];
+                    isCurrentSolve = true;
+                    _a.label = 7;
                 case 7:
-                    _a.sent();
-                    isCurrentSolve = false;
-                    return [4 /*yield*/, solveCaptchaLoop()];
+                    _a.trys.push([7, 8, 9, 12]);
+                    switch (captchaType) {
+                        case CaptchaType.PUZZLE_V1:
+                            solvePuzzleV1();
+                            break;
+                        case CaptchaType.ROTATE_V1:
+                            solveRotateV1();
+                            break;
+                        case CaptchaType.SHAPES_V1:
+                            solveShapesV1();
+                            break;
+                        case CaptchaType.ICON_V1:
+                            solveIconV1();
+                            break;
+                        case CaptchaType.PUZZLE_V2:
+                            solvePuzzleV2();
+                            break;
+                        case CaptchaType.ROTATE_V2:
+                            solveRotateV2();
+                            break;
+                        case CaptchaType.SHAPES_V2:
+                            solveShapesV2();
+                            break;
+                        case CaptchaType.ICON_V2:
+                            solveIconV2();
+                            break;
+                    }
+                    return [3 /*break*/, 12];
                 case 8:
+                    err_1 = _a.sent();
+                    console.log("error solving captcha");
+                    console.error(err_1);
+                    console.log("restarting captcha loop");
+                    return [3 /*break*/, 12];
+                case 9:
+                    isCurrentSolve = false;
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 5000); })];
+                case 10:
                     _a.sent();
-                    return [2 /*return*/];
+                    return [4 /*yield*/, solveCaptchaLoop()];
+                case 11:
+                    _a.sent();
+                    return [7 /*endfinally*/];
+                case 12: return [2 /*return*/];
             }
         });
     });
