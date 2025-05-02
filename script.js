@@ -41,7 +41,14 @@ var shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey=";
 var iconUrl = "https://www.sadcaptcha.com/api/v1/icon?licenseKey=";
 var successXpath = "//*[contains(text(), 'Verification complete')]";
 var apiHeaders = new Headers({ "Content-Type": "application/json" });
-var CONTAINER = document.documentElement || document.body;
+var ctr;
+if (document.documentElement instanceof Node) {
+    ctr = document.documentElement;
+}
+else {
+    ctr = document.body;
+}
+var CONTAINER = ctr;
 var Wrappers = {
     V1: ".captcha-disable-scroll",
     V2: ".captcha-verify-container"

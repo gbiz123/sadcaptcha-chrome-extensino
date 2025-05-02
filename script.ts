@@ -6,7 +6,14 @@ const shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey="
 const iconUrl = "https://www.sadcaptcha.com/api/v1/icon?licenseKey="
 const successXpath = "//*[contains(text(), 'Verification complete')]"
 const apiHeaders = new Headers({ "Content-Type": "application/json" })
-const CONTAINER: Element = document.documentElement || document.body
+
+let ctr: Node;
+if (document.documentElement instanceof Node) {
+	ctr = document.documentElement
+} else {
+	ctr = document.body
+}
+const CONTAINER = ctr
 
 const Wrappers = {
 	V1: ".captcha-disable-scroll",
