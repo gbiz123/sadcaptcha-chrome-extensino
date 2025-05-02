@@ -41,14 +41,6 @@ var shapesUrl = "https://www.sadcaptcha.com/api/v1/shapes?licenseKey=";
 var iconUrl = "https://www.sadcaptcha.com/api/v1/icon?licenseKey=";
 var successXpath = "//*[contains(text(), 'Verification complete')]";
 var apiHeaders = new Headers({ "Content-Type": "application/json" });
-var ctr;
-if (document.documentElement instanceof Node) {
-    ctr = document.documentElement;
-}
-else {
-    ctr = document.body;
-}
-var CONTAINER = ctr;
 var Wrappers = {
     V1: ".captcha-disable-scroll",
     V2: ".captcha-verify-container"
@@ -112,6 +104,16 @@ var CaptchaType;
     CaptchaType[CaptchaType["SHAPES_V2"] = 6] = "SHAPES_V2";
     CaptchaType[CaptchaType["ICON_V2"] = 7] = "ICON_V2";
 })(CaptchaType || (CaptchaType = {}));
+function getContainer() {
+    var ctr;
+    if (document.documentElement instanceof Element) {
+        ctr = document.documentElement;
+    }
+    else {
+        ctr = document.body;
+    }
+    return ctr;
+}
 function waitForAnyElementInList(selectors) {
     return new Promise(function (resolve) {
         var selectorFound = null;
@@ -144,7 +146,7 @@ function waitForAnyElementInList(selectors) {
                 console.log("unimportant mutation seen");
             }
         });
-        observer.observe(CONTAINER, {
+        observer.observe(getContainer(), {
             childList: true,
             subtree: true
         });
@@ -164,7 +166,7 @@ function waitForElement(selector) {
                     return resolve(document.querySelector(selector));
                 }
             });
-            observer_1.observe(CONTAINER, {
+            observer_1.observe(getContainer(), {
                 childList: true,
                 subtree: true
             });
@@ -411,7 +413,7 @@ function fetchImageBase64(imageSource) {
 function moveMouseTo(x, y) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            CONTAINER.dispatchEvent(new MouseEvent("mousemove", {
+            getContainer().dispatchEvent(new MouseEvent("mousemove", {
                 bubbles: true,
                 view: window,
                 clientX: x,

@@ -7,14 +7,6 @@ const iconUrl = "https://www.sadcaptcha.com/api/v1/icon?licenseKey="
 const successXpath = "//*[contains(text(), 'Verification complete')]"
 const apiHeaders = new Headers({ "Content-Type": "application/json" })
 
-let ctr: Node;
-if (document.documentElement instanceof Node) {
-	ctr = document.documentElement
-} else {
-	ctr = document.body
-}
-const CONTAINER = ctr
-
 const Wrappers = {
 	V1: ".captcha-disable-scroll",
 	V2: ".captcha-verify-container"
@@ -107,6 +99,16 @@ enum CaptchaType {
 	ICON_V2
 }
 
+function getContainer(): Element {
+	let ctr: Element;
+	if (document.documentElement instanceof Element) {
+		ctr = document.documentElement
+	} else {
+		ctr = document.body
+	}
+	return ctr;
+}
+
 function waitForAnyElementInList(selectors: Array<string>): Promise<Element> {
 	return new Promise(resolve => {
 		let selectorFound: string = null
@@ -141,7 +143,7 @@ function waitForAnyElementInList(selectors: Array<string>): Promise<Element> {
 			}
 		})
 
-		observer.observe(CONTAINER, {
+		observer.observe(getContainer(), {
 			childList: true,
 			subtree: true
 		})
@@ -162,7 +164,7 @@ function waitForElement(selector: string): Promise<Element> {
 				}
 			})
 
-			observer.observe(CONTAINER, {
+			observer.observe(getContainer(), {
 				childList: true,
 				subtree: true
 			})
@@ -315,7 +317,7 @@ async function fetchImageBase64(imageSource: string): Promise<string> {
 }
 
 async function moveMouseTo(x: number, y: number): Promise<void> {
-	CONTAINER.dispatchEvent(
+	getContainer().dispatchEvent(
 		new MouseEvent("mousemove", {
 			bubbles: true,
 			view: window,
