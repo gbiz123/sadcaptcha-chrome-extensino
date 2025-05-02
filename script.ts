@@ -708,3 +708,143 @@ chrome.runtime.onMessage.addListener(
 	}
 )
 solveCaptchaLoop()
+
+/**
+async function dragElementHorizontal(selector: string, xOffset: number, breakCondition: Function = null): Promise<void> {
+    console.log("preparing to drag " + selector + " by " + xOffset + " pixels")
+    
+    // Get element and initial position
+    const ele = document.querySelector(selector)
+    const box = ele.getBoundingClientRect()
+    const startX = (box.x + (box.width / 2)) // Center of element
+    const startY = (box.y + (box.height / 2))
+
+    // Add slight random initial delay (humans aren't instant)
+    await new Promise(r => setTimeout(r, 150 + Math.random() * 100));
+
+    // Initial mousedown with slight shake
+    const shakeY = startY + (Math.random() * 2 - 1) // +/- 1px variance
+    moveMouseTo(startX, shakeY)
+    
+    // Mouse down events
+    ele.dispatchEvent(
+        new PointerEvent("mousedown", {
+            pointerType: "mouse",
+            width: 1,
+            height: 1,
+            cancelable: true,
+            bubbles: true,
+            view: window,
+            clientX: startX,
+            clientY: shakeY
+        })
+    )
+    
+    ele.dispatchEvent(
+        new DragEvent("dragstart", {
+            cancelable: true,
+            bubbles: true,
+            view: window,
+            clientX: startX,
+            clientY: shakeY
+        })
+    )
+
+    console.log("sent mouse down at " + startX + ", " + shakeY)
+    await new Promise(r => setTimeout(r, 100 + Math.random() * 50));
+
+    // Use easing function for natural acceleration/deceleration
+    const easeInOutQuad = (t: number) => t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    
+    // Break movement into chunks for more natural motion
+    const chunks = 20
+    const pixelsPerChunk = xOffset / chunks
+    
+    for (let i = 1; i <= chunks; i++) {
+        const progress = i / chunks
+        const easedProgress = easeInOutQuad(progress)
+        const currentX = startX + (xOffset * easedProgress)
+        
+        // Add slight vertical wobble
+        const wobbleY = startY + (Math.sin(progress * Math.PI * 2) * 2)
+
+        // Emit events with natural wobble
+        ele.dispatchEvent(
+            new PointerEvent("mouseover", {
+                pointerType: "mouse",
+                width: 1,
+                height: 1,
+                cancelable: true,
+                bubbles: true,
+                view: window,
+                clientX: currentX,
+                clientY: wobbleY
+            })
+        )
+
+        ele.dispatchEvent(
+            new PointerEvent("mousemove", {
+                pointerType: "mouse",
+                width: 1,
+                height: 1,
+                cancelable: true,
+                bubbles: true,
+                view: window,
+                clientX: currentX,
+                clientY: wobbleY
+            })
+        )
+
+        ele.dispatchEvent(
+            new DragEvent("drag", {
+                cancelable: true,
+                bubbles: true,
+                view: window,
+                clientX: currentX,
+                clientY: wobbleY
+            })
+        )
+
+        // Variable delay based on acceleration/deceleration
+        const delay = 50 + (Math.sin(progress * Math.PI) * 30)
+        await new Promise(r => setTimeout(r, delay));
+
+        if (breakCondition?.()) {
+            console.log("break condition reached. exiting mouse drag loop")
+            break
+        }
+    }
+
+    // Add slight delay before release
+    await new Promise(r => setTimeout(r, 100 + Math.random() * 50));
+
+    // Release with slight position variance
+    const finalX = startX + xOffset
+    const finalY = startY + (Math.random() * 2 - 1)
+
+    ele.dispatchEvent(
+        new PointerEvent("mouseup", {
+            pointerType: "mouse",
+            width: 1,
+            height: 1,
+            cancelable: true,
+            bubbles: true,
+            view: window,
+            clientX: finalX,
+            clientY: finalY
+        })
+    )
+
+    ele.dispatchEvent(
+        new DragEvent("dragend", {
+            cancelable: true,
+            bubbles: true,
+            view: window,
+            clientX: finalX,
+            clientY: finalY
+        })
+    )
+
+    console.log("sent mouse up")
+}
+*/
