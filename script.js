@@ -415,129 +415,362 @@ function moveMouseTo(x, y) {
         });
     });
 }
-function dragElementHorizontal(selector_1, xOffset_1) {
-    return __awaiter(this, arguments, void 0, function (selector, xOffset, breakCondition) {
-        var ele, box, startX, startY, pixel, _loop_1, state_1;
-        if (breakCondition === void 0) { breakCondition = null; }
+function solvePuzzleV2() {
+    return __awaiter(this, void 0, void 0, function () {
+        var _loop_1, i, state_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    console.log("preparing to drag " + selector + " by " + xOffset + " pixels");
-                    ele = document.querySelector(selector);
-                    box = ele.getBoundingClientRect();
-                    startX = (box.x + (box.width / 133.7));
-                    startY = (box.y + (box.height / 133.7));
-                    moveMouseTo(startX, startY);
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 133.7); })];
-                case 1:
-                    _a.sent();
-                    ele.dispatchEvent(new PointerEvent("mousedown", {
-                        pointerType: "mouse",
-                        width: 1,
-                        height: 1,
-                        cancelable: true,
-                        bubbles: true,
-                        view: window,
-                        clientX: startX,
-                        clientY: startY
-                    }));
-                    ele.dispatchEvent(new DragEvent("dragstart", {
-                        cancelable: true,
-                        bubbles: true,
-                        view: window,
-                        clientX: startX,
-                        clientY: startY
-                    }));
-                    console.log("sent mouse down at " + startX + ", " + startY);
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 133.7); })];
-                case 2:
-                    _a.sent();
-                    pixel = 0;
-                    _loop_1 = function () {
-                        var pauseTime;
+                    _loop_1 = function (i) {
+                        function pieceHasReachedTargetLocation() {
+                            var piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER);
+                            var style = piece.getAttribute("style");
+                            console.log("piece style: " + style);
+                            var translateX = parseInt(style.match("(?<=translateX\\()[0-9]+").toString());
+                            console.debug("translateX: " + translateX);
+                            if (translateX >= distance) {
+                                console.debug("piece has reached target location");
+                                return true;
+                            }
+                            else {
+                                console.debug("piece has not reached target location");
+                                return false;
+                            }
+                        }
+                        var puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, distance;
                         return __generator(this, function (_b) {
                             switch (_b.label) {
-                                case 0:
-                                    // V1 responds to PointerEvents
-                                    ele.dispatchEvent(new PointerEvent("mouseover", {
-                                        pointerType: "mouse",
-                                        width: 1,
-                                        height: 1,
-                                        cancelable: true,
-                                        bubbles: true,
-                                        view: window,
-                                        clientX: startX + pixel,
-                                        clientY: startY
-                                    }));
-                                    ele.dispatchEvent(new PointerEvent("mousemove", {
-                                        pointerType: "mouse",
-                                        width: 1,
-                                        height: 1,
-                                        cancelable: true,
-                                        bubbles: true,
-                                        view: window,
-                                        clientX: startX + pixel,
-                                        clientY: startY
-                                    }));
-                                    // V2 responds to dragevents
-                                    ele.dispatchEvent(new DragEvent("drag", {
-                                        cancelable: true,
-                                        bubbles: true,
-                                        view: window,
-                                        clientX: startX + pixel,
-                                        clientY: startY
-                                    }));
-                                    pauseTime = (200 / (pixel + 1)) + (Math.random() * 5);
-                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, pauseTime); })];
+                                case 0: return [4 /*yield*/, getImageSource(PuzzleV2.PUZZLE)];
                                 case 1:
+                                    puzzleSrc = _b.sent();
+                                    return [4 /*yield*/, getImageSource(PuzzleV2.PIECE)];
+                                case 2:
+                                    pieceSrc = _b.sent();
+                                    return [4 /*yield*/, fetchImageBase64(puzzleSrc)];
+                                case 3:
+                                    puzzleImg = _b.sent();
+                                    return [4 /*yield*/, fetchImageBase64(pieceSrc)];
+                                case 4:
+                                    pieceImg = _b.sent();
+                                    return [4 /*yield*/, puzzleApiCall(puzzleImg, pieceImg)];
+                                case 5:
+                                    solution = _b.sent();
+                                    puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE);
+                                    return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
+                                case 6:
+                                    distance = _b.sent();
+                                    return [4 /*yield*/, dragWithPreciseMonitoring(PuzzleV2.SLIDER_DRAG_BUTTON, distance, pieceHasReachedTargetLocation)];
+                                case 7:
                                     _b.sent();
-                                    console.log("sent mouse mouse move at " + (startX + pixel) + ", " + startY);
-                                    // if this callback evaluates to true, stop the loop
-                                    if (breakCondition !== null) {
-                                        if (breakCondition()) {
-                                            console.log("break condition has been reached. exiting mouse drag loop");
-                                            return [2 /*return*/, "break"];
-                                        }
-                                    }
+                                    return [4 /*yield*/, checkCaptchaSuccess()];
+                                case 8:
+                                    if (_b.sent())
+                                        return [2 /*return*/, { value: void 0 }];
                                     return [2 /*return*/];
                             }
                         });
                     };
-                    pixel = 0;
+                    i = 0;
+                    _a.label = 1;
+                case 1:
+                    if (!(i < 3)) return [3 /*break*/, 4];
+                    return [5 /*yield**/, _loop_1(i)];
+                case 2:
+                    state_1 = _a.sent();
+                    if (typeof state_1 === "object")
+                        return [2 /*return*/, state_1.value];
                     _a.label = 3;
                 case 3:
-                    if (!(pixel < xOffset)) return [3 /*break*/, 6];
-                    return [5 /*yield**/, _loop_1()];
+                    i++;
+                    return [3 /*break*/, 1];
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+function dragWithPreciseMonitoring(selector_1, targetDistance_1) {
+    return __awaiter(this, arguments, void 0, function (selector, targetDistance, breakCondition, retries) {
+        var offsetVariations, success, _loop_2, attempt, state_2;
+        if (breakCondition === void 0) { breakCondition = null; }
+        if (retries === void 0) { retries = 3; }
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    offsetVariations = [0, -1, 1, -2, 2, -0.5, 0.5];
+                    success = false;
+                    console.log("Preparing to drag ".concat(selector, " with precise monitoring"));
+                    _loop_2 = function (attempt) {
+                        var adjustedTarget, handle, box, startX, startY, endX, approachStartX, approachStartY, approachPoints, _i, approachPoints_1, point, initialX, initialY, numSegments, lastX, lastY, waypoints, i, segmentTarget, yVariation, i, point, curvePoints, _loop_3, _b, curvePoints_1, curvePoint, state_3, finalAdjustments, finalX, finalY, i, precision, adjustX, adjustY, targetX, holdTime_1, veryFinalX, veryFinalY, err_1;
+                        return __generator(this, function (_c) {
+                            switch (_c.label) {
+                                case 0:
+                                    adjustedTarget = targetDistance + (offsetVariations[attempt] || 0);
+                                    console.log("Attempt ".concat(attempt + 1, "/").concat(retries, " - target: ").concat(adjustedTarget, "px"));
+                                    _c.label = 1;
+                                case 1:
+                                    _c.trys.push([1, 30, , 31]);
+                                    return [4 /*yield*/, waitForElement(selector)];
+                                case 2:
+                                    handle = _c.sent();
+                                    box = handle.getBoundingClientRect();
+                                    startX = box.x + (box.width / 2);
+                                    startY = box.y + (box.height / 2);
+                                    endX = startX + adjustedTarget;
+                                    approachStartX = startX - 80 - Math.random() * 40;
+                                    approachStartY = startY + 40 + Math.random() * 30;
+                                    approachPoints = generateNaturalApproach({ x: approachStartX, y: approachStartY }, { x: startX, y: startY }, 8 + Math.floor(Math.random() * 4));
+                                    _i = 0, approachPoints_1 = approachPoints;
+                                    _c.label = 3;
+                                case 3:
+                                    if (!(_i < approachPoints_1.length)) return [3 /*break*/, 6];
+                                    point = approachPoints_1[_i];
+                                    moveMouseTo(point.x, point.y);
+                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 15 + Math.random() * 25); })];
+                                case 4:
+                                    _c.sent();
+                                    _c.label = 5;
+                                case 5:
+                                    _i++;
+                                    return [3 /*break*/, 3];
+                                case 6: 
+                                // Hover on handle with slight jitter
+                                return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 200 + Math.random() * 150); })];
+                                case 7:
+                                    // Hover on handle with slight jitter
+                                    _c.sent();
+                                    moveMouseTo(startX + (Math.random() * 1.5 - 0.75), startY + (Math.random() * 1.5 - 0.75));
+                                    // Press down after a natural delay
+                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 350 + Math.random() * 200); })];
+                                case 8:
+                                    // Press down after a natural delay
+                                    _c.sent();
+                                    // Mouse down and initial movement
+                                    handle.dispatchEvent(new PointerEvent("mousedown", {
+                                        pointerType: "mouse",
+                                        width: 1,
+                                        height: 1,
+                                        cancelable: true,
+                                        bubbles: true,
+                                        view: window,
+                                        clientX: startX,
+                                        clientY: startY
+                                    }));
+                                    handle.dispatchEvent(new DragEvent("dragstart", {
+                                        cancelable: true,
+                                        bubbles: true,
+                                        view: window,
+                                        clientX: startX,
+                                        clientY: startY
+                                    }));
+                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 180 + Math.random() * 120); })];
+                                case 9:
+                                    _c.sent();
+                                    initialX = startX + 2 + (Math.random() * 1.5);
+                                    initialY = startY + (Math.random() * 1 - 0.5);
+                                    moveMouseTo(initialX, initialY);
+                                    handle.dispatchEvent(new DragEvent("drag", {
+                                        cancelable: true,
+                                        bubbles: true,
+                                        view: window,
+                                        clientX: initialX,
+                                        clientY: initialY
+                                    }));
+                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 120 + Math.random() * 80); })];
+                                case 10:
+                                    _c.sent();
+                                    numSegments = 3 + Math.floor(Math.random() * 3);
+                                    lastX = initialX;
+                                    lastY = initialY;
+                                    waypoints = [];
+                                    for (i = 1; i <= numSegments; i++) {
+                                        segmentTarget = startX + (adjustedTarget * (i / numSegments) * (0.85 + Math.random() * 0.3));
+                                        yVariation = Math.sin(i / numSegments * Math.PI) * (Math.random() * 4 - 2);
+                                        waypoints.push({
+                                            x: segmentTarget,
+                                            y: startY + yVariation
+                                        });
+                                    }
+                                    waypoints.push({
+                                        x: endX,
+                                        y: startY + (Math.random() * 1.2 - 0.6)
+                                    });
+                                    i = 0;
+                                    _c.label = 11;
+                                case 11:
+                                    if (!(i < waypoints.length)) return [3 /*break*/, 19];
+                                    point = waypoints[i];
+                                    curvePoints = generateNaturalCurve({ x: lastX, y: lastY }, point, 10 + Math.floor(Math.random() * 8));
+                                    _loop_3 = function (curvePoint) {
+                                        var tremorX, tremorY, isSlowingDown, baseDelay;
+                                        return __generator(this, function (_d) {
+                                            switch (_d.label) {
+                                                case 0:
+                                                    if (breakCondition && breakCondition()) {
+                                                        console.log('Break condition satisfied, puzzle solved!');
+                                                        success = true;
+                                                        return [2 /*return*/, "break"];
+                                                    }
+                                                    tremorX = curvePoint.x + (Math.random() * 0.6 - 0.3);
+                                                    tremorY = curvePoint.y + (Math.random() * 0.6 - 0.3);
+                                                    moveMouseTo(tremorX, tremorY);
+                                                    handle.dispatchEvent(new DragEvent("drag", {
+                                                        cancelable: true,
+                                                        bubbles: true,
+                                                        view: window,
+                                                        clientX: tremorX,
+                                                        clientY: tremorY
+                                                    }));
+                                                    isSlowingDown = i >= waypoints.length - 2;
+                                                    baseDelay = isSlowingDown ? 20 : 8;
+                                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, baseDelay + Math.random() * (isSlowingDown ? 15 : 8)); })];
+                                                case 1:
+                                                    _d.sent();
+                                                    return [2 /*return*/];
+                                            }
+                                        });
+                                    };
+                                    _b = 0, curvePoints_1 = curvePoints;
+                                    _c.label = 12;
+                                case 12:
+                                    if (!(_b < curvePoints_1.length)) return [3 /*break*/, 15];
+                                    curvePoint = curvePoints_1[_b];
+                                    return [5 /*yield**/, _loop_3(curvePoint)];
+                                case 13:
+                                    state_3 = _c.sent();
+                                    if (state_3 === "break")
+                                        return [3 /*break*/, 15];
+                                    _c.label = 14;
+                                case 14:
+                                    _b++;
+                                    return [3 /*break*/, 12];
+                                case 15:
+                                    if (!(Math.random() < 0.3 && i < waypoints.length - 1)) return [3 /*break*/, 17];
+                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 80 + Math.random() * 120); })];
+                                case 16:
+                                    _c.sent();
+                                    _c.label = 17;
+                                case 17:
+                                    lastX = point.x;
+                                    lastY = point.y;
+                                    _c.label = 18;
+                                case 18:
+                                    i++;
+                                    return [3 /*break*/, 11];
+                                case 19:
+                                    finalAdjustments = 4 + Math.floor(Math.random() * 3);
+                                    finalX = lastX;
+                                    finalY = lastY;
+                                    i = 0;
+                                    _c.label = 20;
+                                case 20:
+                                    if (!(i < finalAdjustments)) return [3 /*break*/, 24];
+                                    precision = 1 - (i / finalAdjustments);
+                                    adjustX = (Math.random() * 1.0 - 0.5) * precision * (i === finalAdjustments - 1 ? 0.3 : 0.8);
+                                    adjustY = (Math.random() * 0.8 - 0.4) * precision * (i === finalAdjustments - 1 ? 0.3 : 0.8);
+                                    finalX += adjustX;
+                                    finalY += adjustY;
+                                    moveMouseTo(finalX, finalY);
+                                    handle.dispatchEvent(new DragEvent("drag", {
+                                        cancelable: true,
+                                        bubbles: true,
+                                        view: window,
+                                        clientX: finalX,
+                                        clientY: finalY
+                                    }));
+                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 120 + Math.random() * 180); })];
+                                case 21:
+                                    _c.sent();
+                                    if (!(i === finalAdjustments - 2)) return [3 /*break*/, 23];
+                                    targetX = endX - finalX;
+                                    if (!(Math.abs(targetX) > 0.5)) return [3 /*break*/, 23];
+                                    finalX += targetX * 0.8;
+                                    moveMouseTo(finalX, finalY);
+                                    handle.dispatchEvent(new DragEvent("drag", {
+                                        cancelable: true,
+                                        bubbles: true,
+                                        view: window,
+                                        clientX: finalX,
+                                        clientY: finalY
+                                    }));
+                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 200 + Math.random() * 100); })];
+                                case 22:
+                                    _c.sent();
+                                    _c.label = 23;
+                                case 23:
+                                    i++;
+                                    return [3 /*break*/, 20];
+                                case 24:
+                                    holdTime_1 = 3000 + Math.random() * 3000;
+                                    console.log("Holding at final position for ".concat(Math.round(holdTime_1), "ms"));
+                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, holdTime_1); })];
+                                case 25:
+                                    _c.sent();
+                                    veryFinalX = finalX + (Math.random() * 0.3 - 0.15);
+                                    veryFinalY = finalY + (Math.random() * 0.3 - 0.15);
+                                    moveMouseTo(veryFinalX, veryFinalY);
+                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 50 + Math.random() * 30); })];
+                                case 26:
+                                    _c.sent();
+                                    // Release mouse
+                                    handle.dispatchEvent(new PointerEvent("mouseup", {
+                                        pointerType: "mouse",
+                                        width: 1,
+                                        height: 1,
+                                        cancelable: true,
+                                        bubbles: true,
+                                        view: window,
+                                        clientX: veryFinalX,
+                                        clientY: veryFinalY
+                                    }));
+                                    handle.dispatchEvent(new DragEvent("dragend", {
+                                        cancelable: true,
+                                        bubbles: true,
+                                        view: window,
+                                        clientX: veryFinalX,
+                                        clientY: veryFinalY
+                                    }));
+                                    // Check if we're done
+                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 2500); })];
+                                case 27:
+                                    // Check if we're done
+                                    _c.sent();
+                                    return [4 /*yield*/, checkCaptchaSuccess()];
+                                case 28:
+                                    // Check for success
+                                    if (_c.sent()) {
+                                        console.log('Captcha success detected!');
+                                        success = true;
+                                        return [2 /*return*/, "break"];
+                                    }
+                                    console.log('Validation failed, retrying...');
+                                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1000); })];
+                                case 29:
+                                    _c.sent();
+                                    return [3 /*break*/, 31];
+                                case 30:
+                                    err_1 = _c.sent();
+                                    console.error("Drag error: ".concat(err_1.message));
+                                    return [3 /*break*/, 31];
+                                case 31: return [2 /*return*/];
+                            }
+                        });
+                    };
+                    attempt = 0;
+                    _a.label = 1;
+                case 1:
+                    if (!(attempt < retries)) return [3 /*break*/, 4];
+                    return [5 /*yield**/, _loop_2(attempt)];
+                case 2:
+                    state_2 = _a.sent();
+                    if (state_2 === "break")
+                        return [3 /*break*/, 4];
+                    _a.label = 3;
+                case 3:
+                    attempt++;
+                    return [3 /*break*/, 1];
                 case 4:
-                    state_1 = _a.sent();
-                    if (state_1 === "break")
-                        return [3 /*break*/, 6];
-                    _a.label = 5;
-                case 5:
-                    pixel++;
-                    return [3 /*break*/, 3];
-                case 6: return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 133.7); })];
-                case 7:
-                    _a.sent();
-                    ele.dispatchEvent(new PointerEvent("mouseup", {
-                        pointerType: "mouse",
-                        width: 1,
-                        height: 1,
-                        cancelable: true,
-                        bubbles: true,
-                        view: window,
-                        clientX: pixel,
-                        clientY: startY
-                    }));
-                    ele.dispatchEvent(new DragEvent("dragend", {
-                        cancelable: true,
-                        bubbles: true,
-                        view: window,
-                        clientX: pixel,
-                        clientY: startY
-                    }));
-                    console.log("sent mouse up");
-                    return [2 /*return*/];
+                    console.log(success ? 'Drag successful!' : "Failed after ".concat(retries, " attempts"));
+                    return [2 /*return*/, success];
             }
         });
     });
@@ -750,7 +983,7 @@ function solveRotateV1() {
                     return [4 /*yield*/, computeRotateSlideDistance(solution, slideBar, slideButton)];
                 case 7:
                     distance = _a.sent();
-                    return [4 /*yield*/, dragElementHorizontal(RotateV1.SLIDER_DRAG_BUTTON, distance)];
+                    return [4 /*yield*/, dragWithPreciseMonitoring(RotateV1.SLIDER_DRAG_BUTTON, distance)];
                 case 8:
                     _a.sent();
                     return [4 /*yield*/, checkCaptchaSuccess()];
@@ -796,7 +1029,7 @@ function solveRotateV2() {
                     return [4 /*yield*/, computeRotateSlideDistance(solution, slideBar, slideButton)];
                 case 7:
                     distance = _a.sent();
-                    return [4 /*yield*/, dragElementHorizontal(RotateV2.SLIDER_DRAG_BUTTON, distance)];
+                    return [4 /*yield*/, dragWithPreciseMonitoring(RotateV2.SLIDER_DRAG_BUTTON, distance)];
                 case 8:
                     _a.sent();
                     return [4 /*yield*/, checkCaptchaSuccess()];
@@ -841,7 +1074,7 @@ function solvePuzzleV1() {
                     return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
                 case 7:
                     distance = _a.sent();
-                    return [4 /*yield*/, dragElementHorizontal(PuzzleV1.SLIDER_DRAG_BUTTON, distance)];
+                    return [4 /*yield*/, dragWithPreciseMonitoring(PuzzleV1.SLIDER_DRAG_BUTTON, distance)];
                 case 8:
                     _a.sent();
                     return [4 /*yield*/, checkCaptchaSuccess()];
@@ -853,79 +1086,6 @@ function solvePuzzleV1() {
                     i++;
                     return [3 /*break*/, 1];
                 case 11: return [2 /*return*/];
-            }
-        });
-    });
-}
-function solvePuzzleV2() {
-    return __awaiter(this, void 0, void 0, function () {
-        var _loop_2, i, state_2;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _loop_2 = function (i) {
-                        function pieceHasReachedTargetLocation() {
-                            var piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER);
-                            var style = piece.getAttribute("style");
-                            console.log("piece style: " + style);
-                            var translateX = parseInt(style.match("(?<=translateX\\()[0-9]+").toString());
-                            console.debug("translateX: " + translateX);
-                            if (translateX >= distance) {
-                                console.debug("piece has reached target location");
-                                return true;
-                            }
-                            else {
-                                console.debug("piece has not reached target location");
-                                return false;
-                            }
-                        }
-                        var puzzleSrc, pieceSrc, puzzleImg, pieceImg, solution, puzzleImageEle, distance;
-                        return __generator(this, function (_b) {
-                            switch (_b.label) {
-                                case 0: return [4 /*yield*/, getImageSource(PuzzleV2.PUZZLE)];
-                                case 1:
-                                    puzzleSrc = _b.sent();
-                                    return [4 /*yield*/, getImageSource(PuzzleV2.PIECE)];
-                                case 2:
-                                    pieceSrc = _b.sent();
-                                    return [4 /*yield*/, fetchImageBase64(puzzleSrc)];
-                                case 3:
-                                    puzzleImg = _b.sent();
-                                    return [4 /*yield*/, fetchImageBase64(pieceSrc)];
-                                case 4:
-                                    pieceImg = _b.sent();
-                                    return [4 /*yield*/, puzzleApiCall(puzzleImg, pieceImg)];
-                                case 5:
-                                    solution = _b.sent();
-                                    puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE);
-                                    return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
-                                case 6:
-                                    distance = _b.sent();
-                                    return [4 /*yield*/, dragElementHorizontal(PuzzleV2.SLIDER_DRAG_BUTTON, distance, pieceHasReachedTargetLocation)];
-                                case 7:
-                                    _b.sent();
-                                    return [4 /*yield*/, checkCaptchaSuccess()];
-                                case 8:
-                                    if (_b.sent())
-                                        return [2 /*return*/, { value: void 0 }];
-                                    return [2 /*return*/];
-                            }
-                        });
-                    };
-                    i = 0;
-                    _a.label = 1;
-                case 1:
-                    if (!(i < 3)) return [3 /*break*/, 4];
-                    return [5 /*yield**/, _loop_2(i)];
-                case 2:
-                    state_2 = _a.sent();
-                    if (typeof state_2 === "object")
-                        return [2 /*return*/, state_2.value];
-                    _a.label = 3;
-                case 3:
-                    i++;
-                    return [3 /*break*/, 1];
-                case 4: return [2 /*return*/];
             }
         });
     });
@@ -1036,84 +1196,140 @@ function solveIconV2() {
         });
     });
 }
+function generateNaturalCurve(start, end, steps) {
+    var points = [];
+    var controlPoint = {
+        x: start.x + (end.x - start.x) * (0.3 + Math.random() * 0.4),
+        y: start.y + (Math.random() * 12 - 6)
+    };
+    for (var i = 0; i <= steps; i++) {
+        var t = i / steps;
+        var x = Math.pow(1 - t, 2) * start.x + 2 * (1 - t) * t * controlPoint.x + Math.pow(t, 2) * end.x;
+        var y = Math.pow(1 - t, 2) * start.y + 2 * (1 - t) * t * controlPoint.y + Math.pow(t, 2) * end.y;
+        points.push({ x: x, y: y });
+    }
+    return points;
+}
+function generateNaturalApproach(start, end, steps) {
+    var control1 = {
+        x: start.x + (end.x - start.x) * (0.2 + Math.random() * 0.2),
+        y: start.y + (Math.random() * 15 - 5)
+    };
+    var control2 = {
+        x: start.x + (end.x - start.x) * (0.6 + Math.random() * 0.2),
+        y: end.y + (Math.random() * 10 - 5)
+    };
+    var points = [];
+    for (var i = 0; i <= steps; i++) {
+        var t = i / steps;
+        var x = Math.pow(1 - t, 3) * start.x +
+            3 * Math.pow(1 - t, 2) * t * control1.x +
+            3 * (1 - t) * Math.pow(t, 2) * control2.x +
+            Math.pow(t, 3) * end.x;
+        var y = Math.pow(1 - t, 3) * start.y +
+            3 * Math.pow(1 - t, 2) * t * control1.y +
+            3 * (1 - t) * Math.pow(t, 2) * control2.y +
+            Math.pow(t, 3) * end.y;
+        points.push({ x: x, y: y });
+    }
+    return points;
+}
 var isCurrentSolve = false;
 function solveCaptchaLoop() {
     return __awaiter(this, void 0, void 0, function () {
-        var _, captchaType, e_1, err_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var _, captchaType, e_1, _a, err_2;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    if (!!isCurrentSolve) return [3 /*break*/, 12];
+                    if (!!isCurrentSolve) return [3 /*break*/, 29];
                     return [4 /*yield*/, waitForAnyElementInList([Wrappers.V1, Wrappers.V2])];
                 case 1:
-                    _ = _a.sent();
+                    _ = _b.sent();
                     return [4 /*yield*/, identifyCaptcha()];
                 case 2:
-                    captchaType = _a.sent();
-                    _a.label = 3;
+                    captchaType = _b.sent();
+                    _b.label = 3;
                 case 3:
-                    _a.trys.push([3, 5, , 6]);
+                    _b.trys.push([3, 5, , 6]);
                     return [4 /*yield*/, creditsApiCall()];
                 case 4:
-                    if ((_a.sent()) <= 0) {
+                    if ((_b.sent()) <= 0) {
                         console.log("out of credits");
                         alert("Out of SadCaptcha credits. Please boost your balance on sadcaptcha.com/dashboard.");
                         return [2 /*return*/];
                     }
                     return [3 /*break*/, 6];
                 case 5:
-                    e_1 = _a.sent();
+                    e_1 = _b.sent();
                     // Catch the error because we dont want to break the solver just because we failed to fetch the credits API
                     console.log("error making check credits api call: " + e_1);
                     return [3 /*break*/, 6];
                 case 6:
                     isCurrentSolve = true;
-                    _a.label = 7;
+                    _b.label = 7;
                 case 7:
-                    _a.trys.push([7, 8, 9, 12]);
-                    switch (captchaType) {
-                        case CaptchaType.PUZZLE_V1:
-                            solvePuzzleV1();
-                            break;
-                        case CaptchaType.ROTATE_V1:
-                            solveRotateV1();
-                            break;
-                        case CaptchaType.SHAPES_V1:
-                            solveShapesV1();
-                            break;
-                        case CaptchaType.ICON_V1:
-                            solveIconV1();
-                            break;
-                        case CaptchaType.PUZZLE_V2:
-                            solvePuzzleV2();
-                            break;
-                        case CaptchaType.ROTATE_V2:
-                            solveRotateV2();
-                            break;
-                        case CaptchaType.SHAPES_V2:
-                            solveShapesV2();
-                            break;
-                        case CaptchaType.ICON_V2:
-                            solveIconV2();
-                            break;
+                    _b.trys.push([7, 25, 26, 29]);
+                    _a = captchaType;
+                    switch (_a) {
+                        case CaptchaType.PUZZLE_V1: return [3 /*break*/, 8];
+                        case CaptchaType.ROTATE_V1: return [3 /*break*/, 10];
+                        case CaptchaType.SHAPES_V1: return [3 /*break*/, 12];
+                        case CaptchaType.ICON_V1: return [3 /*break*/, 14];
+                        case CaptchaType.PUZZLE_V2: return [3 /*break*/, 16];
+                        case CaptchaType.ROTATE_V2: return [3 /*break*/, 18];
+                        case CaptchaType.SHAPES_V2: return [3 /*break*/, 20];
+                        case CaptchaType.ICON_V2: return [3 /*break*/, 22];
                     }
-                    return [3 /*break*/, 12];
-                case 8:
-                    err_1 = _a.sent();
-                    console.log("error solving captcha");
-                    console.error(err_1);
-                    console.log("restarting captcha loop");
-                    return [3 /*break*/, 12];
+                    return [3 /*break*/, 24];
+                case 8: return [4 /*yield*/, solvePuzzleV1()];
                 case 9:
+                    _b.sent();
+                    return [3 /*break*/, 24];
+                case 10: return [4 /*yield*/, solveRotateV1()];
+                case 11:
+                    _b.sent();
+                    return [3 /*break*/, 24];
+                case 12: return [4 /*yield*/, solveShapesV1()];
+                case 13:
+                    _b.sent();
+                    return [3 /*break*/, 24];
+                case 14: return [4 /*yield*/, solveIconV1()];
+                case 15:
+                    _b.sent();
+                    return [3 /*break*/, 24];
+                case 16: return [4 /*yield*/, solvePuzzleV2()];
+                case 17:
+                    _b.sent();
+                    return [3 /*break*/, 24];
+                case 18: return [4 /*yield*/, solveRotateV2()];
+                case 19:
+                    _b.sent();
+                    return [3 /*break*/, 24];
+                case 20: return [4 /*yield*/, solveShapesV2()];
+                case 21:
+                    _b.sent();
+                    return [3 /*break*/, 24];
+                case 22: return [4 /*yield*/, solveIconV2()];
+                case 23:
+                    _b.sent();
+                    return [3 /*break*/, 24];
+                case 24: return [3 /*break*/, 29];
+                case 25:
+                    err_2 = _b.sent();
+                    console.log("error solving captcha");
+                    console.error(err_2);
+                    console.log("restarting captcha loop");
+                    return [3 /*break*/, 29];
+                case 26:
                     isCurrentSolve = false;
                     return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 5000); })];
-                case 10:
-                    _a.sent();
+                case 27:
+                    _b.sent();
                     return [4 /*yield*/, solveCaptchaLoop()];
-                case 11:
-                    _a.sent();
+                case 28:
+                    _b.sent();
                     return [7 /*endfinally*/];
-                case 12: return [2 /*return*/];
+                case 29: return [2 /*return*/];
             }
         });
     });
@@ -1137,142 +1353,3 @@ catch (err) {
     console.warn("Chrome runtime is not available");
 }
 solveCaptchaLoop();
-/**
-async function dragElementHorizontal(selector: string, xOffset: number, breakCondition: Function = null): Promise<void> {
-    console.log("preparing to drag " + selector + " by " + xOffset + " pixels")
-    
-    // Get element and initial position
-    const ele = document.querySelector(selector)
-    const box = ele.getBoundingClientRect()
-    const startX = (box.x + (box.width / 2)) // Center of element
-    const startY = (box.y + (box.height / 2))
-
-    // Add slight random initial delay (humans aren't instant)
-    await new Promise(r => setTimeout(r, 150 + Math.random() * 100));
-
-    // Initial mousedown with slight shake
-    const shakeY = startY + (Math.random() * 2 - 1) // +/- 1px variance
-    moveMouseTo(startX, shakeY)
-    
-    // Mouse down events
-    ele.dispatchEvent(
-        new PointerEvent("mousedown", {
-            pointerType: "mouse",
-            width: 1,
-            height: 1,
-            cancelable: true,
-            bubbles: true,
-            view: window,
-            clientX: startX,
-            clientY: shakeY
-        })
-    )
-    
-    ele.dispatchEvent(
-        new DragEvent("dragstart", {
-            cancelable: true,
-            bubbles: true,
-            view: window,
-            clientX: startX,
-            clientY: shakeY
-        })
-    )
-
-    console.log("sent mouse down at " + startX + ", " + shakeY)
-    await new Promise(r => setTimeout(r, 100 + Math.random() * 50));
-
-    // Use easing function for natural acceleration/deceleration
-    const easeInOutQuad = (t: number) => t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-    
-    // Break movement into chunks for more natural motion
-    const chunks = 20
-    const pixelsPerChunk = xOffset / chunks
-    
-    for (let i = 1; i <= chunks; i++) {
-        const progress = i / chunks
-        const easedProgress = easeInOutQuad(progress)
-        const currentX = startX + (xOffset * easedProgress)
-        
-        // Add slight vertical wobble
-        const wobbleY = startY + (Math.sin(progress * Math.PI * 2) * 2)
-
-        // Emit events with natural wobble
-        ele.dispatchEvent(
-            new PointerEvent("mouseover", {
-                pointerType: "mouse",
-                width: 1,
-                height: 1,
-                cancelable: true,
-                bubbles: true,
-                view: window,
-                clientX: currentX,
-                clientY: wobbleY
-            })
-        )
-
-        ele.dispatchEvent(
-            new PointerEvent("mousemove", {
-                pointerType: "mouse",
-                width: 1,
-                height: 1,
-                cancelable: true,
-                bubbles: true,
-                view: window,
-                clientX: currentX,
-                clientY: wobbleY
-            })
-        )
-
-        ele.dispatchEvent(
-            new DragEvent("drag", {
-                cancelable: true,
-                bubbles: true,
-                view: window,
-                clientX: currentX,
-                clientY: wobbleY
-            })
-        )
-
-        // Variable delay based on acceleration/deceleration
-        const delay = 50 + (Math.sin(progress * Math.PI) * 30)
-        await new Promise(r => setTimeout(r, delay));
-
-        if (breakCondition?.()) {
-            console.log("break condition reached. exiting mouse drag loop")
-            break
-        }
-    }
-
-    // Add slight delay before release
-    await new Promise(r => setTimeout(r, 100 + Math.random() * 50));
-
-    // Release with slight position variance
-    const finalX = startX + xOffset
-    const finalY = startY + (Math.random() * 2 - 1)
-
-    ele.dispatchEvent(
-        new PointerEvent("mouseup", {
-            pointerType: "mouse",
-            width: 1,
-            height: 1,
-            cancelable: true,
-            bubbles: true,
-            view: window,
-            clientX: finalX,
-            clientY: finalY
-        })
-    )
-
-    ele.dispatchEvent(
-        new DragEvent("dragend", {
-            cancelable: true,
-            bubbles: true,
-            view: window,
-            clientX: finalX,
-            clientY: finalY
-        })
-    )
-
-    console.log("sent mouse up")
-}
-*/
