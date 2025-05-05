@@ -598,6 +598,11 @@ function dragWithPreciseMonitoring(selector_1, targetDistance_1) {
                                     _c.label = 11;
                                 case 11:
                                     if (!(i < waypoints.length)) return [3 /*break*/, 19];
+                                    if (breakCondition && breakCondition()) {
+                                        console.log('Break condition satisfied, puzzle solved!');
+                                        success = true;
+                                        return [3 /*break*/, 19];
+                                    }
                                     point = waypoints[i];
                                     curvePoints = generateNaturalCurve({ x: lastX, y: lastY }, point, 10 + Math.floor(Math.random() * 8));
                                     _loop_3 = function (curvePoint) {
@@ -664,6 +669,11 @@ function dragWithPreciseMonitoring(selector_1, targetDistance_1) {
                                     _c.label = 20;
                                 case 20:
                                     if (!(i < finalAdjustments)) return [3 /*break*/, 24];
+                                    if (breakCondition && breakCondition()) {
+                                        console.log('Break condition satisfied, puzzle solved!');
+                                        success = true;
+                                        return [3 /*break*/, 24];
+                                    }
                                     precision = 1 - (i / finalAdjustments);
                                     adjustX = (Math.random() * 1.0 - 0.5) * precision * (i === finalAdjustments - 1 ? 0.3 : 0.8);
                                     adjustY = (Math.random() * 0.8 - 0.4) * precision * (i === finalAdjustments - 1 ? 0.3 : 0.8);

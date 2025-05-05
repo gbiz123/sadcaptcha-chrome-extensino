@@ -466,6 +466,12 @@ async function dragWithPreciseMonitoring(
             
             // Move through each waypoint with natural curves
             for (let i = 0; i < waypoints.length; i++) {
+				if (breakCondition && breakCondition()) {
+					console.log('Break condition satisfied, puzzle solved!');
+					success = true;
+					break;
+				}
+
                 const point = waypoints[i];
                 
                 const curvePoints = generateNaturalCurve(
@@ -516,6 +522,11 @@ async function dragWithPreciseMonitoring(
             let finalY = lastY;
             
             for (let i = 0; i < finalAdjustments; i++) {
+				if (breakCondition && breakCondition()) {
+					console.log('Break condition satisfied, puzzle solved!');
+					success = true;
+					break;
+				}
                 const precision = 1 - (i / finalAdjustments);
                 
                 const adjustX = (Math.random() * 1.0 - 0.5) * precision * (i === finalAdjustments - 1 ? 0.3 : 0.8);
