@@ -13,7 +13,7 @@ if os.path.isdir(user_data_dir):
 def run(playwright: Playwright):
 
     proxy = ProxySettings(server="216.173.104.197:6334")
-    # proxy = None
+    proxy = None
 
     context = playwright.chromium.launch_persistent_context(
         user_data_dir,
