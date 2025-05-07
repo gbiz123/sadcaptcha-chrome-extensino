@@ -748,9 +748,7 @@ function dragWithPreciseMonitoring(selector_1, targetDistance_1) {
                     err_1 = _b.sent();
                     console.error("Drag error: ".concat(err_1.message));
                     return [3 /*break*/, 30];
-                case 30:
-                    console.log(success ? 'Drag successful!' : "Failed after ".concat(retries, " attempts"));
-                    return [2 /*return*/, success];
+                case 30: return [2 /*return*/, success];
             }
         });
     });
@@ -889,46 +887,33 @@ function solveShapesV1() {
 }
 function solveShapesV2() {
     return __awaiter(this, void 0, void 0, function () {
-        var i, src, img, res, ele, submitButton;
+        var src, img, res, ele, submitButton;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    i = 0;
-                    _a.label = 1;
+                case 0: return [4 /*yield*/, getImageSource(ShapesV2.IMAGE)];
                 case 1:
-                    if (!(i < 3)) return [3 /*break*/, 10];
-                    return [4 /*yield*/, getImageSource(ShapesV2.IMAGE)];
-                case 2:
                     src = _a.sent();
                     return [4 /*yield*/, fetchImageBase64(src)];
-                case 3:
+                case 2:
                     img = _a.sent();
                     return [4 /*yield*/, shapesApiCall(img)];
-                case 4:
+                case 3:
                     res = _a.sent();
                     ele = document.querySelector(ShapesV2.IMAGE);
                     clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY);
                     return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
-                case 5:
+                case 4:
                     _a.sent();
                     clickProportional(ele, res.pointTwoProportionX, res.pointTwoProportionY);
                     return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 2337); })];
-                case 6:
+                case 5:
                     _a.sent();
                     submitButton = document.querySelector(ShapesV2.SUBMIT_BUTTON);
                     clickCenterOfElement(submitButton);
                     return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
-                case 7:
+                case 6:
                     _a.sent();
-                    return [4 /*yield*/, checkCaptchaSuccess()];
-                case 8:
-                    if (_a.sent())
-                        return [2 /*return*/];
-                    _a.label = 9;
-                case 9:
-                    i++;
-                    return [3 /*break*/, 1];
-                case 10: return [2 /*return*/];
+                    return [2 /*return*/];
             }
         });
     });
@@ -1125,53 +1110,44 @@ function solveIconV1() {
 }
 function solveIconV2() {
     return __awaiter(this, void 0, void 0, function () {
-        var i, src, img, challenge, res, ele, _i, _a, point, submitButton;
+        var src, img, challenge, res, ele, _i, _a, point, submitButton;
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0:
-                    i = 0;
-                    _b.label = 1;
+                case 0: return [4 /*yield*/, getImageSource(IconV2.IMAGE)];
                 case 1:
-                    if (!(i < 3)) return [3 /*break*/, 12];
-                    return [4 /*yield*/, getImageSource(IconV2.IMAGE)];
-                case 2:
                     src = _b.sent();
                     return [4 /*yield*/, fetchImageBase64(src)];
-                case 3:
+                case 2:
                     img = _b.sent();
                     challenge = document.querySelector(IconV2.TEXT).textContent;
                     return [4 /*yield*/, iconApiCall(challenge, img)];
-                case 4:
+                case 3:
                     res = _b.sent();
                     ele = document.querySelector(IconV2.IMAGE);
                     _i = 0, _a = res.proportionalPoints;
-                    _b.label = 5;
-                case 5:
-                    if (!(_i < _a.length)) return [3 /*break*/, 8];
+                    _b.label = 4;
+                case 4:
+                    if (!(_i < _a.length)) return [3 /*break*/, 7];
                     point = _a[_i];
                     clickProportional(ele, point.proportionX, point.proportionY);
                     return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
-                case 6:
+                case 5:
                     _b.sent();
-                    _b.label = 7;
-                case 7:
+                    _b.label = 6;
+                case 6:
                     _i++;
-                    return [3 /*break*/, 5];
-                case 8:
+                    return [3 /*break*/, 4];
+                case 7:
                     submitButton = document.querySelector(IconV2.SUBMIT_BUTTON);
                     clickCenterOfElement(submitButton);
                     return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1337); })];
-                case 9:
+                case 8:
                     _b.sent();
                     return [4 /*yield*/, checkCaptchaSuccess()];
-                case 10:
+                case 9:
                     if (_b.sent())
                         return [2 /*return*/];
-                    _b.label = 11;
-                case 11:
-                    i++;
-                    return [3 /*break*/, 1];
-                case 12: return [2 /*return*/];
+                    return [2 /*return*/];
             }
         });
     });

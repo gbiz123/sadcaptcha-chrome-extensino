@@ -613,7 +613,6 @@ async function dragWithPreciseMonitoring(
 		console.error(`Drag error: ${err.message}`);
 	}
 
-    console.log(success ? 'Drag successful!' : `Failed after ${retries} attempts`);
     return success;
 }
 
@@ -690,21 +689,17 @@ async function solveShapesV1(): Promise<void> {
 }
 
 async function solveShapesV2(): Promise<void> {
-	for (let i = 0; i < 3; i++) {
-		let src = await getImageSource(ShapesV2.IMAGE)
-		let img = await fetchImageBase64(src)
-		let res = await shapesApiCall(img)
-		let ele = document.querySelector(ShapesV2.IMAGE)
-		clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY)
-		await new Promise(r => setTimeout(r, 1337));
-		clickProportional(ele, res.pointTwoProportionX, res.pointTwoProportionY)
-		await new Promise(r => setTimeout(r, 2337));
-		let submitButton = document.querySelector(ShapesV2.SUBMIT_BUTTON)
-		clickCenterOfElement(submitButton)
-		await new Promise(r => setTimeout(r, 1337));
-		if (await checkCaptchaSuccess())
-			return;
-	}
+	let src = await getImageSource(ShapesV2.IMAGE)
+	let img = await fetchImageBase64(src)
+	let res = await shapesApiCall(img)
+	let ele = document.querySelector(ShapesV2.IMAGE)
+	clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY)
+	await new Promise(r => setTimeout(r, 1337));
+	clickProportional(ele, res.pointTwoProportionX, res.pointTwoProportionY)
+	await new Promise(r => setTimeout(r, 2337));
+	let submitButton = document.querySelector(ShapesV2.SUBMIT_BUTTON)
+	clickCenterOfElement(submitButton)
+	await new Promise(r => setTimeout(r, 1337));
 }
 
 async function solveRotateV1(): Promise<void> {
@@ -774,22 +769,20 @@ async function solveIconV1(): Promise<void> {
 }
 
 async function solveIconV2(): Promise<void> {
-	for (let i = 0; i < 3; i++) {
-		let src = await getImageSource(IconV2.IMAGE)
-		let img = await fetchImageBase64(src)
-		let challenge: string = document.querySelector(IconV2.TEXT).textContent
-		let res = await iconApiCall(challenge, img)
-		let ele = document.querySelector(IconV2.IMAGE)
-		for (const point of res.proportionalPoints) {
-			clickProportional(ele, point.proportionX, point.proportionY)
-			await new Promise(r => setTimeout(r, 1337));
-		}
-		let submitButton = document.querySelector(IconV2.SUBMIT_BUTTON)
-		clickCenterOfElement(submitButton)
+	let src = await getImageSource(IconV2.IMAGE)
+	let img = await fetchImageBase64(src)
+	let challenge: string = document.querySelector(IconV2.TEXT).textContent
+	let res = await iconApiCall(challenge, img)
+	let ele = document.querySelector(IconV2.IMAGE)
+	for (const point of res.proportionalPoints) {
+		clickProportional(ele, point.proportionX, point.proportionY)
 		await new Promise(r => setTimeout(r, 1337));
-		if (await checkCaptchaSuccess())
-			return;
 	}
+	let submitButton = document.querySelector(IconV2.SUBMIT_BUTTON)
+	clickCenterOfElement(submitButton)
+	await new Promise(r => setTimeout(r, 1337));
+	if (await checkCaptchaSuccess())
+		return;
 }
 
 function generateNaturalCurve(start: {x: number, y: number}, end: {x: number, y: number}, steps: number): Array<{x: number, y: number}> {
