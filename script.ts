@@ -606,9 +606,6 @@ async function dragWithPreciseMonitoring(
 		// Check if we're done
 		await new Promise(r => setTimeout(r, 2500));
 		
-		console.log('Validation failed, retrying...');
-		await new Promise(r => setTimeout(r, 1000));
-		
 	} catch (err) {
 		console.error(`Drag error: ${err.message}`);
 	}

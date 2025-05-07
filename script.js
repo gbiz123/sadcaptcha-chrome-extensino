@@ -503,7 +503,7 @@ function dragWithPreciseMonitoring(selector_1, targetDistance_1) {
                     adjustedTarget = targetDistance;
                     _b.label = 1;
                 case 1:
-                    _b.trys.push([1, 29, , 30]);
+                    _b.trys.push([1, 28, , 29]);
                     return [4 /*yield*/, waitForElement(selector)];
                 case 2:
                     handle = _b.sent();
@@ -739,16 +739,12 @@ function dragWithPreciseMonitoring(selector_1, targetDistance_1) {
                 case 27:
                     // Check if we're done
                     _b.sent();
-                    console.log('Validation failed, retrying...');
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 1000); })];
+                    return [3 /*break*/, 29];
                 case 28:
-                    _b.sent();
-                    return [3 /*break*/, 30];
-                case 29:
                     err_1 = _b.sent();
                     console.error("Drag error: ".concat(err_1.message));
-                    return [3 /*break*/, 30];
-                case 30: return [2 /*return*/, success];
+                    return [3 /*break*/, 29];
+                case 29: return [2 /*return*/, success];
             }
         });
     });
