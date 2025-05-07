@@ -328,7 +328,7 @@ async function solvePuzzleV2(): Promise<void> {
 		let puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE)
 		let distance = await computePuzzleSlideDistance(solution, puzzleImageEle) 
 
-		let adjustment = 5
+		let adjustment = 3
 		distance = distance - adjustment
 
 		function pieceHasReachedTargetLocation(): boolean {

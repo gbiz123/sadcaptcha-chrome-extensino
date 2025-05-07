@@ -459,7 +459,7 @@ function solvePuzzleV2() {
                                     return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
                                 case 6:
                                     distance = _b.sent();
-                                    adjustment = 5;
+                                    adjustment = 3;
                                     distance = distance - adjustment;
                                     return [4 /*yield*/, dragWithPreciseMonitoring(PuzzleV2.SLIDER_DRAG_BUTTON, distance, pieceHasReachedTargetLocation)];
                                 case 7:
