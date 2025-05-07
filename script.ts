@@ -328,10 +328,8 @@ async function solvePuzzleV2(): Promise<void> {
 		let puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE)
 		let distance = await computePuzzleSlideDistance(solution, puzzleImageEle) 
 
-		if (document.querySelector(".tiktokads-common-login-title")) {
-			distance = distance - 5
-			console.log("On TikTok affiliate page - subtracting a few pixels from distance")
-		}
+		let adjustment = 2
+		distance = distance - adjustment
 
 		function pieceHasReachedTargetLocation(): boolean {
 			let piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER)
