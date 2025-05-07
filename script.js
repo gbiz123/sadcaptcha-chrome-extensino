@@ -459,6 +459,10 @@ function solvePuzzleV2() {
                                     return [4 /*yield*/, computePuzzleSlideDistance(solution, puzzleImageEle)];
                                 case 6:
                                     distance = _b.sent();
+                                    if (document.querySelector(".tiktokads-common-login-title")) {
+                                        distance = distance - 5;
+                                        console.log("On TikTok affiliate page - subtracting a few pixels from distance");
+                                    }
                                     return [4 /*yield*/, dragWithPreciseMonitoring(PuzzleV2.SLIDER_DRAG_BUTTON, distance, pieceHasReachedTargetLocation)];
                                 case 7:
                                     _b.sent();
