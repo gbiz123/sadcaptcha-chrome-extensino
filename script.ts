@@ -362,269 +362,257 @@ async function dragWithPreciseMonitoring(
     breakCondition: Function = null,
     retries: number = 3
 ): Promise<boolean> {
-    const offsetVariations = [0, -1, 1, -2, 2, -0.5, 0.5];
     let success = false;
 
     console.log(`Preparing to drag ${selector} with precise monitoring`);
+	const adjustedTarget = targetDistance 
 
-    for (let attempt = 0; attempt < retries; attempt++) {
-        const adjustedTarget = targetDistance + (offsetVariations[attempt] || 0);
-        console.log(`Attempt ${attempt + 1}/${retries} - target: ${adjustedTarget}px`);
+	try {
+		const handle = await waitForElement(selector);
+		const box = handle.getBoundingClientRect();
+		const startX = box.x + (box.width / 2);
+		const startY = box.y + (box.height / 2);
+		const endX = startX + adjustedTarget;
 
-        try {
-            const handle = await waitForElement(selector);
-            const box = handle.getBoundingClientRect();
-            const startX = box.x + (box.width / 2);
-            const startY = box.y + (box.height / 2);
-            const endX = startX + adjustedTarget;
+		// Natural approach to the handle
+		const approachStartX = startX - 80 - Math.random() * 40;
+		const approachStartY = startY + 40 + Math.random() * 30;
+		const approachPoints = generateNaturalApproach(
+			{ x: approachStartX, y: approachStartY },
+			{ x: startX, y: startY },
+			8 + Math.floor(Math.random() * 4)
+		);
 
-            // Natural approach to the handle
-            const approachStartX = startX - 80 - Math.random() * 40;
-            const approachStartY = startY + 40 + Math.random() * 30;
-            const approachPoints = generateNaturalApproach(
-                { x: approachStartX, y: approachStartY },
-                { x: startX, y: startY },
-                8 + Math.floor(Math.random() * 4)
-            );
+		// Move cursor to approach the handle naturally
+		for (const point of approachPoints) {
+			moveMouseTo(point.x, point.y);
+			await new Promise(r => setTimeout(r, 15 + Math.random() * 25));
+		}
 
-            // Move cursor to approach the handle naturally
-            for (const point of approachPoints) {
-                moveMouseTo(point.x, point.y);
-                await new Promise(r => setTimeout(r, 15 + Math.random() * 25));
-            }
+		// Hover on handle with slight jitter
+		await new Promise(r => setTimeout(r, 200 + Math.random() * 150));
+		moveMouseTo(
+			startX + (Math.random() * 1.5 - 0.75),
+			startY + (Math.random() * 1.5 - 0.75)
+		);
 
-            // Hover on handle with slight jitter
-            await new Promise(r => setTimeout(r, 200 + Math.random() * 150));
-            moveMouseTo(
-                startX + (Math.random() * 1.5 - 0.75),
-                startY + (Math.random() * 1.5 - 0.75)
-            );
+		// Press down after a natural delay
+		await new Promise(r => setTimeout(r, 350 + Math.random() * 200));
+		
+		// Mouse down and initial movement
+		handle.dispatchEvent(
+			new PointerEvent("mousedown", {
+				pointerType: "mouse",
+				width: 1,
+				height: 1,
+				cancelable: true,
+				bubbles: true,
+				view: window,
+				clientX: startX,
+				clientY: startY
+			})
+		);
+		
+		handle.dispatchEvent(
+			new DragEvent("dragstart", {
+				cancelable: true,
+				bubbles: true,
+				view: window,
+				clientX: startX,
+				clientY: startY
+			})
+		);
 
-            // Press down after a natural delay
-            await new Promise(r => setTimeout(r, 350 + Math.random() * 200));
-            
-            // Mouse down and initial movement
-            handle.dispatchEvent(
-                new PointerEvent("mousedown", {
-                    pointerType: "mouse",
-                    width: 1,
-                    height: 1,
-                    cancelable: true,
-                    bubbles: true,
-                    view: window,
-                    clientX: startX,
-                    clientY: startY
-                })
-            );
-            
-            handle.dispatchEvent(
-                new DragEvent("dragstart", {
-                    cancelable: true,
-                    bubbles: true,
-                    view: window,
-                    clientX: startX,
-                    clientY: startY
-                })
-            );
+		await new Promise(r => setTimeout(r, 180 + Math.random() * 120));
+		
+		// Initial small movement
+		const initialX = startX + 2 + (Math.random() * 1.5);
+		const initialY = startY + (Math.random() * 1 - 0.5);
+		
+		moveMouseTo(initialX, initialY);
+		handle.dispatchEvent(
+			new DragEvent("drag", {
+				cancelable: true,
+				bubbles: true,
+				view: window,
+				clientX: initialX,
+				clientY: initialY
+			})
+		);
+		
+		await new Promise(r => setTimeout(r, 120 + Math.random() * 80));
+		
+		// Create segmented movement with waypoints
+		const numSegments = 3 + Math.floor(Math.random() * 3);
+		let lastX = initialX;
+		let lastY = initialY;
+		
+		const waypoints = [];
+		for (let i = 1; i <= numSegments; i++) {
+			const segmentTarget = startX + (adjustedTarget * (i/numSegments) * (0.85 + Math.random() * 0.3));
+			const yVariation = Math.sin(i / numSegments * Math.PI) * (Math.random() * 4 - 2);
+			
+			waypoints.push({
+				x: segmentTarget,
+				y: startY + yVariation
+			});
+		}
+		
+		waypoints.push({
+			x: endX,
+			y: startY + (Math.random() * 1.2 - 0.6)
+		});
+		
+		// Move through each waypoint with natural curves
+		for (let i = 0; i < waypoints.length; i++) {
+			if (breakCondition && breakCondition()) {
+				console.log('Break condition satisfied, puzzle solved!');
+				success = true;
+				break;
+			}
 
-            await new Promise(r => setTimeout(r, 180 + Math.random() * 120));
-            
-            // Initial small movement
-            const initialX = startX + 2 + (Math.random() * 1.5);
-            const initialY = startY + (Math.random() * 1 - 0.5);
-            
-            moveMouseTo(initialX, initialY);
-            handle.dispatchEvent(
-                new DragEvent("drag", {
-                    cancelable: true,
-                    bubbles: true,
-                    view: window,
-                    clientX: initialX,
-                    clientY: initialY
-                })
-            );
-            
-            await new Promise(r => setTimeout(r, 120 + Math.random() * 80));
-            
-            // Create segmented movement with waypoints
-            const numSegments = 3 + Math.floor(Math.random() * 3);
-            let lastX = initialX;
-            let lastY = initialY;
-            
-            const waypoints = [];
-            for (let i = 1; i <= numSegments; i++) {
-                const segmentTarget = startX + (adjustedTarget * (i/numSegments) * (0.85 + Math.random() * 0.3));
-                const yVariation = Math.sin(i / numSegments * Math.PI) * (Math.random() * 4 - 2);
-                
-                waypoints.push({
-                    x: segmentTarget,
-                    y: startY + yVariation
-                });
-            }
-            
-            waypoints.push({
-                x: endX,
-                y: startY + (Math.random() * 1.2 - 0.6)
-            });
-            
-            // Move through each waypoint with natural curves
-            for (let i = 0; i < waypoints.length; i++) {
+			const point = waypoints[i];
+			
+			const curvePoints = generateNaturalCurve(
+				{ x: lastX, y: lastY },
+				point,
+				10 + Math.floor(Math.random() * 8)
+			);
+			
+			for (const curvePoint of curvePoints) {
 				if (breakCondition && breakCondition()) {
 					console.log('Break condition satisfied, puzzle solved!');
 					success = true;
 					break;
 				}
 
-                const point = waypoints[i];
-                
-                const curvePoints = generateNaturalCurve(
-                    { x: lastX, y: lastY },
-                    point,
-                    10 + Math.floor(Math.random() * 8)
-                );
-                
-                for (const curvePoint of curvePoints) {
-					if (breakCondition && breakCondition()) {
-						console.log('Break condition satisfied, puzzle solved!');
-						success = true;
-						break;
-					}
-
-                    // Add slight tremor to movement
-                    const tremorX = curvePoint.x + (Math.random() * 0.6 - 0.3);
-                    const tremorY = curvePoint.y + (Math.random() * 0.6 - 0.3);
-                    
-                    moveMouseTo(tremorX, tremorY);
-                    handle.dispatchEvent(
-                        new DragEvent("drag", {
-                            cancelable: true,
-                            bubbles: true,
-                            view: window,
-                            clientX: tremorX,
-                            clientY: tremorY
-                        })
-                    );
-                    
-                    const isSlowingDown = i >= waypoints.length - 2;
-                    const baseDelay = isSlowingDown ? 20 : 8;
-                    await new Promise(r => setTimeout(r, baseDelay + Math.random() * (isSlowingDown ? 15 : 8)));
-                }
-                
-                // Random pauses during movement
-                if (Math.random() < 0.3 && i < waypoints.length - 1) {
-                    await new Promise(r => setTimeout(r, 80 + Math.random() * 120));
-                }
-                
-                lastX = point.x;
-                lastY = point.y;
-            }
-            
-            // Final micro-adjustments
-            const finalAdjustments = 4 + Math.floor(Math.random() * 3);
-            let finalX = lastX;
-            let finalY = lastY;
-            
-            for (let i = 0; i < finalAdjustments; i++) {
-				if (breakCondition && breakCondition()) {
-					console.log('Break condition satisfied, puzzle solved!');
-					success = true;
-					break;
+				// Add slight tremor to movement
+				const tremorX = curvePoint.x + (Math.random() * 0.6 - 0.3);
+				const tremorY = curvePoint.y + (Math.random() * 0.6 - 0.3);
+				
+				moveMouseTo(tremorX, tremorY);
+				handle.dispatchEvent(
+					new DragEvent("drag", {
+						cancelable: true,
+						bubbles: true,
+						view: window,
+						clientX: tremorX,
+						clientY: tremorY
+					})
+				);
+				
+				const isSlowingDown = i >= waypoints.length - 2;
+				const baseDelay = isSlowingDown ? 20 : 8;
+				await new Promise(r => setTimeout(r, baseDelay + Math.random() * (isSlowingDown ? 15 : 8)));
+			}
+			
+			// Random pauses during movement
+			if (Math.random() < 0.3 && i < waypoints.length - 1) {
+				await new Promise(r => setTimeout(r, 80 + Math.random() * 120));
+			}
+			
+			lastX = point.x;
+			lastY = point.y;
+		}
+		
+		// Final micro-adjustments
+		const finalAdjustments = 4 + Math.floor(Math.random() * 3);
+		let finalX = lastX;
+		let finalY = lastY;
+		
+		for (let i = 0; i < finalAdjustments; i++) {
+			if (breakCondition && breakCondition()) {
+				console.log('Break condition satisfied, puzzle solved!');
+				success = true;
+				break;
+			}
+			const precision = 1 - (i / finalAdjustments);
+			
+			const adjustX = (Math.random() * 1.0 - 0.5) * precision * (i === finalAdjustments - 1 ? 0.3 : 0.8);
+			const adjustY = (Math.random() * 0.8 - 0.4) * precision * (i === finalAdjustments - 1 ? 0.3 : 0.8);
+			
+			finalX += adjustX;
+			finalY += adjustY;
+			
+			moveMouseTo(finalX, finalY);
+			handle.dispatchEvent(
+				new DragEvent("drag", {
+					cancelable: true,
+					bubbles: true,
+					view: window,
+					clientX: finalX,
+					clientY: finalY
+				})
+			);
+			
+			await new Promise(r => setTimeout(r, 120 + Math.random() * 180));
+			
+			// Last-second correction toward target
+			if (i === finalAdjustments - 2) {
+				const targetX = endX - finalX;
+				if (Math.abs(targetX) > 0.5) {
+					finalX += targetX * 0.8;
+					moveMouseTo(finalX, finalY);
+					handle.dispatchEvent(
+						new DragEvent("drag", {
+							cancelable: true,
+							bubbles: true,
+							view: window,
+							clientX: finalX,
+							clientY: finalY
+						})
+					);
+					await new Promise(r => setTimeout(r, 200 + Math.random() * 100));
 				}
-                const precision = 1 - (i / finalAdjustments);
-                
-                const adjustX = (Math.random() * 1.0 - 0.5) * precision * (i === finalAdjustments - 1 ? 0.3 : 0.8);
-                const adjustY = (Math.random() * 0.8 - 0.4) * precision * (i === finalAdjustments - 1 ? 0.3 : 0.8);
-                
-                finalX += adjustX;
-                finalY += adjustY;
-                
-                moveMouseTo(finalX, finalY);
-                handle.dispatchEvent(
-                    new DragEvent("drag", {
-                        cancelable: true,
-                        bubbles: true,
-                        view: window,
-                        clientX: finalX,
-                        clientY: finalY
-                    })
-                );
-                
-                await new Promise(r => setTimeout(r, 120 + Math.random() * 180));
-                
-                // Last-second correction toward target
-                if (i === finalAdjustments - 2) {
-                    const targetX = endX - finalX;
-                    if (Math.abs(targetX) > 0.5) {
-                        finalX += targetX * 0.8;
-                        moveMouseTo(finalX, finalY);
-                        handle.dispatchEvent(
-                            new DragEvent("drag", {
-                                cancelable: true,
-                                bubbles: true,
-                                view: window,
-                                clientX: finalX,
-                                clientY: finalY
-                            })
-                        );
-                        await new Promise(r => setTimeout(r, 200 + Math.random() * 100));
-                    }
-                }
-            }
-            
-            // Hold at final position
-            const holdTime = 3000 + Math.random() * 3000;
-            console.log(`Holding at final position for ${Math.round(holdTime)}ms`);
-            await new Promise(r => setTimeout(r, holdTime));
-            
-            // Small final tremor
-            const veryFinalX = finalX + (Math.random() * 0.3 - 0.15);
-            const veryFinalY = finalY + (Math.random() * 0.3 - 0.15);
-            moveMouseTo(veryFinalX, veryFinalY);
-            
-            await new Promise(r => setTimeout(r, 50 + Math.random() * 30));
-            
-            // Release mouse
-            handle.dispatchEvent(
-                new PointerEvent("mouseup", {
-                    pointerType: "mouse",
-                    width: 1,
-                    height: 1,
-                    cancelable: true,
-                    bubbles: true,
-                    view: window,
-                    clientX: veryFinalX,
-                    clientY: veryFinalY
-                })
-            );
-            
-            handle.dispatchEvent(
-                new DragEvent("dragend", {
-                    cancelable: true,
-                    bubbles: true,
-                    view: window,
-                    clientX: veryFinalX,
-                    clientY: veryFinalY
-                })
-            );
-            
-            // Check if we're done
-            await new Promise(r => setTimeout(r, 2500));
-            
-            // Check for success
-            if (await checkCaptchaSuccess()) {
-                console.log('Captcha success detected!');
-                success = true;
-                break;
-            }
-            
-            console.log('Validation failed, retrying...');
-            await new Promise(r => setTimeout(r, 1000));
-            
-        } catch (err) {
-            console.error(`Drag error: ${err.message}`);
-        }
-    }
-    
+			}
+		}
+		
+		// Hold at final position
+		const holdTime = 3000 + Math.random() * 3000;
+		console.log(`Holding at final position for ${Math.round(holdTime)}ms`);
+		await new Promise(r => setTimeout(r, holdTime));
+		
+		// Small final tremor
+		const veryFinalX = finalX + (Math.random() * 0.3 - 0.15);
+		const veryFinalY = finalY + (Math.random() * 0.3 - 0.15);
+		moveMouseTo(veryFinalX, veryFinalY);
+		
+		await new Promise(r => setTimeout(r, 50 + Math.random() * 30));
+		
+		// Release mouse
+		handle.dispatchEvent(
+			new PointerEvent("mouseup", {
+				pointerType: "mouse",
+				width: 1,
+				height: 1,
+				cancelable: true,
+				bubbles: true,
+				view: window,
+				clientX: veryFinalX,
+				clientY: veryFinalY
+			})
+		);
+		
+		handle.dispatchEvent(
+			new DragEvent("dragend", {
+				cancelable: true,
+				bubbles: true,
+				view: window,
+				clientX: veryFinalX,
+				clientY: veryFinalY
+			})
+		);
+		
+		// Check if we're done
+		await new Promise(r => setTimeout(r, 2500));
+		
+		console.log('Validation failed, retrying...');
+		await new Promise(r => setTimeout(r, 1000));
+		
+	} catch (err) {
+		console.error(`Drag error: ${err.message}`);
+	}
+
     console.log(success ? 'Drag successful!' : `Failed after ${retries} attempts`);
     return success;
 }
