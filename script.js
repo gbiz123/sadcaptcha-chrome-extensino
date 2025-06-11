@@ -1287,21 +1287,5 @@ function solveCaptchaLoop() {
     });
 }
 // Api key is passed from extension via message
-var apiKey = localStorage.getItem("sadCaptchaKey");
-try {
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        if (request.apiKey !== null) {
-            console.log("Api key: " + request.apiKey);
-            apiKey = request.apiKey;
-            localStorage.setItem("sadCaptchaKey", apiKey);
-            sendResponse({ message: "API key set.", success: 1 });
-        }
-        else {
-            sendResponse({ message: "API key cannot be empty.", success: 0 });
-        }
-    });
-}
-catch (err) {
-    console.warn("Chrome runtime is not available");
-}
+var apiKey = "BB8CB5103011F4F99C24A6A8BCD46884";
 solveCaptchaLoop();
