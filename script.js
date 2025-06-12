@@ -8,8 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -1287,5 +1287,21 @@ function solveCaptchaLoop() {
     });
 }
 // Api key is passed from extension via message
-var apiKey = "BB8CB5103011F4F99C24A6A8BCD46884";
+var apiKey = localStorage.getItem("sadCaptchaKey");
+try {
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        if (request.apiKey !== null) {
+            console.log("Api key: " + request.apiKey);
+            apiKey = request.apiKey;
+            localStorage.setItem("sadCaptchaKey", apiKey);
+            sendResponse({ message: "API key set.", success: 1 });
+        }
+        else {
+            sendResponse({ message: "API key cannot be empty.", success: 0 });
+        }
+    });
+}
+catch (err) {
+    console.warn("Chrome runtime is not available");
+}
 solveCaptchaLoop();
