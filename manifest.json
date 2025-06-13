@@ -11,6 +11,8 @@
     {
       "matches": [
         "https://*.tiktok.com/*",
+        "https://*.bytedance.com/*",
+        "https://*.byteplus.com/*",
         "https://*.lifeattiktok.com/*"
       ],
       "all_frames": false,
