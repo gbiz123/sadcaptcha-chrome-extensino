@@ -1,5 +1,5 @@
 # SadCaptcha Chrome Extension
-This is it, yall. If you are working in Python I highly recommend just using the (Python client)phttps://github.com/gbiz123/tiktok-captcha-solver]
+This is it, yall. If you are working in Python I highly recommend just using the (Python client)[https://github.com/gbiz123/tiktok-captcha-solver]
 
 ## How to use it
 You can use this extension by loading it as an "unpacked" extension in Google Chrome.
