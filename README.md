@@ -18,7 +18,7 @@ API_KEY = "YOUR_API_KEY"
 with open("script.js", "r", encoding="utf-8") as f:
     script = f.read()
 
-script = script.replace('localStorage.getItem("sadCaptchaKey")', f"\"{api_key}\";")
+script = script.replace('localStorage.getItem("sadCaptchaKey")', f"\"{API_KEY}\";")
 
 with open("script.js", "w", encoding="utf-8") as f:
     f.write(script)
