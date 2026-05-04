@@ -13,7 +13,8 @@
         "https://*.tiktok.com/*",
         "https://*.bytedance.com/*",
         "https://*.byteplus.com/*",
-        "https://*.lifeattiktok.com/*"
+        "https://*.lifeattiktok.com/*",
+        "https://*.tiktokshop.com/*"
       ],
       "all_frames": false,
       "js": [
