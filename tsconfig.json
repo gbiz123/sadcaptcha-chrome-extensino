@@ -4,10 +4,15 @@
         "noEmitOnError": true,
         "removeComments": false,
         "sourceMap": true,
-        "target": "es2015"
+        "target": "es6",
+        "lib": ["es2021", "dom"],
+		"types": [
+			"chrome"
+		]
     },
     "include": [
-        "script.ts"
+        "script.ts",
+		"script_ext.ts"
     ],
 	"types": [
 		"chrome"

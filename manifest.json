@@ -10,8 +10,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.tiktok.com/*",
-        "https://*.lifeattiktok.com/*"
+        "<all_urls>"
       ],
       "all_frames": false,
       "js": [

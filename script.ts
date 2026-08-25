@@ -68,11 +68,28 @@ const IconV2 = {
 	TEXT: ".captcha-verify-container > div > div > span"
 }
 
+const CAPTCHA_PRESENCE_INDICATORS = [
+	IconV2.TEXT, 
+	IconV2.IMAGE,
+	IconV2.SUBMIT_BUTTON,
+	ShapesV2.SUBMIT_BUTTON,
+	ShapesV2.IMAGE,
+	PuzzleV1.UNIQUE_IDENTIFIER,
+	PuzzleV2.UNIQUE_IDENTIFIER,
+	RotateV2.UNIQUE_IDENTIFIER,
+	RotateV1.UNIQUE_IDENTIFIER
+]
+
 type ShapesCaptchaResponse = {
 	pointOneProportionX: number
 	pointOneProportionY: number
 	pointTwoProportionX: number
 	pointTwoProportionY: number
+}
+
+type Point = {
+	x: number
+	y: number
 }
 
 type ProportionalPoint = {
@@ -99,68 +116,93 @@ enum CaptchaType {
 	ICON_V2
 }
 
-function waitForAnyElementInList(selectors: Array<string>): Promise<Element> {
-	return new Promise(resolve => {
-		let selectorFound: string = null
-
-		// Check if already present
-		selectors.forEach(selector => {
-			if (document.querySelector(selector)) {
-				selectorFound = selector
-				console.log("Selector found: " + selector)
-				return resolve(document.querySelector(selectorFound))
-			}
-		})
-		if (selectorFound !== null) {
-			return resolve(document.querySelector(selectorFound))
-		}
-
-		// Then start waiting if not found immediately
-		const observer: MutationObserver = new MutationObserver(mutations => {
-			selectors.forEach(selector => {
-				if (document.querySelector(selector)) {
-					selectorFound = selector
-					console.log("Selector found by mutation observer: " + selector)
-					observer.disconnect()
-					return
-				}
-			})
-			if (selectorFound !== null) {
-				console.log("returning selector from mutation observer: " + selectorFound)
-				return resolve(document.querySelector(selectorFound))
-			} else {
-				console.log("unimportant mutation seen")
-			}
-		})
-
-		observer.observe(CONTAINER, {
-			childList: true,
-			subtree: true
-		})
-	})
-}
-
-function waitForElement(selector: string): Promise<Element> {
-	return new Promise(resolve => {
-		if (document.querySelector(selector)) {
-			console.log("Selector found: " + selector)
-			return resolve(document.querySelector(selector)!)
-		} else {
+function findFirstElementToAppear(selectors: Array<string>): Promise<Element> {
+		return new Promise(resolve => {
 			const observer: MutationObserver = new MutationObserver(mutations => {
-				if (document.querySelector(selector)) {
-					observer.disconnect()
-					console.log("Selector found by mutation observer: " + selector)
-					return resolve(document.querySelector(selector)!)
+			for (const mutation of mutations) {
+				if (mutation.addedNodes === null) 
+					continue
+				let addedNode: Array<Node> = []
+				mutation.addedNodes.forEach(node => addedNode.push(node))
+				for (const node of addedNode)
+					for (const selector of selectors) {
+						try {
+							if (node instanceof HTMLIFrameElement) {
+								let iframe = <HTMLIFrameElement>node 
+								setTimeout(() => {
+									if (iframe.contentWindow) {
+										let iframeElement = iframe.contentWindow!.document.body.querySelector(selector)
+										if (iframeElement) {
+											console.debug(`element matched ${selector} in iframe`)
+											observer.disconnect()
+											console.dir(iframeElement)
+											return resolve(iframeElement)
+										}
+									} else {
+										console.log(`no iframe with selector ${selector}, contentWindow was null`)
+									}
+								}, 3000)
+							}
+
+							if (node instanceof Element) {
+								let element = <Element>node
+								if (element.querySelector(selector)) {
+									console.debug(`element matched ${selector}`)
+									observer.disconnect()
+									console.dir(element)
+									return resolve(element)
+								}
+							}
+						} catch (err) {
+							console.log(`error occurred when finding element with css selector ${selector}, error was: ` + err)
+							console.log("trying again")
+						}
+					}
 				}
 			})
-
 			observer.observe(CONTAINER, {
 				childList: true,
 				subtree: true
 			})
+		})
+	}
+
+function waitForElement(selector: string, iframeSelector?: string): Promise<Element> {
+		for (let i = 0; i < 5; i++) {
+			try {
+				return new Promise(resolve => {
+					let targetDocument: Document;
+					if (iframeSelector !== undefined) {
+						let iframe = document.querySelector(iframeSelector) as HTMLIFrameElement
+						targetDocument = iframe.contentWindow!.document
+					} else {
+						targetDocument = window.document
+					}
+					if (targetDocument.querySelector(selector)) {
+						console.log("Selector found: " + selector)
+						return resolve(targetDocument.querySelector(selector)!)
+					} else {
+						const observer: MutationObserver = new MutationObserver(_ => {
+							if (targetDocument.querySelector(selector)) {
+								observer.disconnect()
+								console.log("Selector found by mutation observer: " + selector)
+								return resolve(targetDocument.querySelector(selector)!)
+							}
+						})
+						observer.observe(CONTAINER, {
+							childList: true,
+							subtree: true
+						})
+					}
+				}) 
+			} catch (err) {
+				console.log(`error occurred when finding element with css selector ${selector}, error was: ` + err)
+				console.log("trying again")
+			}
 		}
-	})
-}
+
+		throw new Error(`Could not get element ${selector} after 5 tries`)
+	}
 
 async function creditsApiCall(): Promise<number> {
 	let resp = await fetch(creditsUrl + apiKey, {
@@ -286,7 +328,10 @@ async function identifyCaptcha(): Promise<CaptchaType> {
 async function getImageSource(selector: string): Promise<string> {
 	let ele = await waitForElement(selector)
 	let src = ele.getAttribute("src")
-	console.log("src = " + selector)
+	if (src === null) {
+		throw new Error("src was null for element: " + selector)
+	}
+	console.log("src = " + src)
 	return src
 }
 
@@ -325,7 +370,7 @@ async function solvePuzzleV2(): Promise<void> {
 		let puzzleImg = await fetchImageBase64(puzzleSrc)
 		let pieceImg = await fetchImageBase64(pieceSrc)
 		let solution = await puzzleApiCall(puzzleImg, pieceImg)
-		let puzzleImageEle = document.querySelector(PuzzleV2.PUZZLE)
+		let puzzleImageEle = await waitForElement(PuzzleV2.PUZZLE)
 		let distance = await computePuzzleSlideDistance(solution, puzzleImageEle) 
 
 		let adjustment = 3
@@ -333,9 +378,22 @@ async function solvePuzzleV2(): Promise<void> {
 
 		function pieceHasReachedTargetLocation(): boolean {
 			let piece = document.querySelector(PuzzleV2.PIECE_IMAGE_CONTAINER)
+			if (piece === null) {
+				console.log("puzzle piece was null")
+				throw new Error("puzzle piece was null")
+			} 
 			let style = piece.getAttribute("style")
+			if (style === null) {
+				console.log("puzzle piece css .style attr was null")
+				throw new Error("puzzle piece css .style attr was null")
+			} 
 			console.log("piece style: " + style)
-			let translateX = parseInt(style.match("(?<=translateX\\()[0-9]+").toString());
+			let translateXStyleMatch = style.match("(?<=translateX\\()[0-9]+")
+			if (translateXStyleMatch === null) {
+				console.log("puzzle piece css .style did not match translateX regex")
+				throw new Error("puzzle piece css .style did not match translateX regex")
+			} 
+			let translateX = parseInt(translateXStyleMatch.toString());
 			console.debug("translateX: " + translateX)
 			if (translateX >= distance) {
 				console.debug("piece has reached target location")
@@ -359,7 +417,7 @@ async function solvePuzzleV2(): Promise<void> {
 async function dragWithPreciseMonitoring(
     selector: string, 
     targetDistance: number, 
-    breakCondition: Function = null,
+    breakCondition: Function | null = null,
     retries: number = 3
 ): Promise<boolean> {
     let success = false;
@@ -447,7 +505,7 @@ async function dragWithPreciseMonitoring(
 		let lastX = initialX;
 		let lastY = initialY;
 		
-		const waypoints = [];
+		const waypoints: Array<Point> = [];
 		for (let i = 1; i <= numSegments; i++) {
 			const segmentTarget = startX + (adjustedTarget * (i/numSegments) * (0.85 + Math.random() * 0.3));
 			const yVariation = Math.sin(i / numSegments * Math.PI) * (Math.random() * 4 - 2);
@@ -607,7 +665,7 @@ async function dragWithPreciseMonitoring(
 		await new Promise(r => setTimeout(r, 2500));
 		
 	} catch (err) {
-		console.error(`Drag error: ${err.message}`);
+		console.error(`Drag error: ${err}`);
 	}
 
     return success;
@@ -672,12 +730,12 @@ async function solveShapesV1(): Promise<void> {
 		let src = await getImageSource(ShapesV1.IMAGE)
 		let img = await fetchImageBase64(src)
 		let res = await shapesApiCall(img)
-		let ele = document.querySelector(ShapesV1.IMAGE)
+		let ele = await waitForElement(ShapesV1.IMAGE)
 		clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY)
 		await new Promise(r => setTimeout(r, 1337));
 		clickProportional(ele, res.pointTwoProportionX, res.pointTwoProportionY)
 		await new Promise(r => setTimeout(r, 2337));
-		let submitButton = document.querySelector(ShapesV1.SUBMIT_BUTTON)
+		let submitButton = await waitForElement(ShapesV1.SUBMIT_BUTTON)
 		clickCenterOfElement(submitButton)
 		await new Promise(r => setTimeout(r, 1337));
 		if (await checkCaptchaSuccess())
@@ -689,12 +747,12 @@ async function solveShapesV2(): Promise<void> {
 	let src = await getImageSource(ShapesV2.IMAGE)
 	let img = await fetchImageBase64(src)
 	let res = await shapesApiCall(img)
-	let ele = document.querySelector(ShapesV2.IMAGE)
+	let ele = await waitForElement(ShapesV2.IMAGE)
 	clickProportional(ele, res.pointOneProportionX, res.pointOneProportionY)
 	await new Promise(r => setTimeout(r, 1337));
 	clickProportional(ele, res.pointTwoProportionX, res.pointTwoProportionY)
 	await new Promise(r => setTimeout(r, 2337));
-	let submitButton = document.querySelector(ShapesV2.SUBMIT_BUTTON)
+	let submitButton = await waitForElement(ShapesV2.SUBMIT_BUTTON)
 	clickCenterOfElement(submitButton)
 	await new Promise(r => setTimeout(r, 1337));
 }
@@ -706,8 +764,8 @@ async function solveRotateV1(): Promise<void> {
 		let outerImg = await fetchImageBase64(outerSrc)
 		let innerImg = await fetchImageBase64(innerSrc)
 		let solution = await rotateApiCall(outerImg, innerImg)
-		let slideBar = document.querySelector(RotateV1.SLIDE_BAR)
-		let slideButton = document.querySelector(RotateV1.SLIDER_DRAG_BUTTON)
+		let slideBar = await waitForElement(RotateV1.SLIDE_BAR)
+		let slideButton = await waitForElement(RotateV1.SLIDER_DRAG_BUTTON)
 		let distance = await computeRotateSlideDistance(solution, slideBar, slideButton)
 		await dragWithPreciseMonitoring(RotateV1.SLIDER_DRAG_BUTTON, distance)
 		if (await checkCaptchaSuccess())
@@ -722,8 +780,8 @@ async function solveRotateV2(): Promise<void> {
 		let outerImg = await fetchImageBase64(outerSrc)
 		let innerImg = await fetchImageBase64(innerSrc)
 		let solution = await rotateApiCall(outerImg, innerImg)
-		let slideBar = document.querySelector(RotateV2.SLIDE_BAR)
-		let slideButton = document.querySelector(RotateV2.SLIDER_DRAG_BUTTON)
+		let slideBar = await waitForElement(RotateV2.SLIDE_BAR)
+		let slideButton = await waitForElement(RotateV2.SLIDER_DRAG_BUTTON)
 		let distance = await computeRotateSlideDistance(solution, slideBar, slideButton)
 		await dragWithPreciseMonitoring(RotateV2.SLIDER_DRAG_BUTTON, distance)
 		if (await checkCaptchaSuccess())
@@ -738,7 +796,7 @@ async function solvePuzzleV1(): Promise<void> {
 		let puzzleImg = await fetchImageBase64(puzzleSrc)
 		let pieceImg = await fetchImageBase64(pieceSrc)
 		let solution = await puzzleApiCall(puzzleImg, pieceImg)
-		let puzzleImageEle = document.querySelector(PuzzleV1.PUZZLE)
+		let puzzleImageEle = await waitForElement(PuzzleV1.PUZZLE)
 		let distance = await computePuzzleSlideDistance(solution, puzzleImageEle)
 		await dragWithPreciseMonitoring(PuzzleV1.SLIDER_DRAG_BUTTON, distance)
 		if (await checkCaptchaSuccess())
@@ -750,14 +808,14 @@ async function solveIconV1(): Promise<void> {
 	for (let i = 0; i < 3; i++) {
 		let src = await getImageSource(IconV1.IMAGE)
 		let img = await fetchImageBase64(src)
-		let challenge: string = document.querySelector(IconV1.TEXT).textContent
+		let challenge: string = (await waitForElement(IconV1.TEXT)).textContent
 		let res = await iconApiCall(challenge, img)
-		let ele = document.querySelector(IconV1.IMAGE)
+		let ele = await waitForElement(IconV1.IMAGE)
 		for (const point of res.proportionalPoints) {
 			clickProportional(ele, point.proportionX, point.proportionY)
 			await new Promise(r => setTimeout(r, 1337));
 		}
-		let submitButton = document.querySelector(IconV1.SUBMIT_BUTTON)
+		let submitButton = await waitForElement(IconV1.SUBMIT_BUTTON)
 		clickCenterOfElement(submitButton)
 		await new Promise(r => setTimeout(r, 1337));
 		if (await checkCaptchaSuccess())
@@ -768,22 +826,22 @@ async function solveIconV1(): Promise<void> {
 async function solveIconV2(): Promise<void> {
 	let src = await getImageSource(IconV2.IMAGE)
 	let img = await fetchImageBase64(src)
-	let challenge: string = document.querySelector(IconV2.TEXT).textContent
+	let challenge: string = (await waitForElement(IconV2.TEXT)).textContent
 	let res = await iconApiCall(challenge, img)
-	let ele = document.querySelector(IconV2.IMAGE)
+	let ele = await waitForElement(IconV2.IMAGE)
 	for (const point of res.proportionalPoints) {
 		clickProportional(ele, point.proportionX, point.proportionY)
 		await new Promise(r => setTimeout(r, 1337));
 	}
-	let submitButton = document.querySelector(IconV2.SUBMIT_BUTTON)
+	let submitButton = await waitForElement(IconV2.SUBMIT_BUTTON)
 	clickCenterOfElement(submitButton)
 	await new Promise(r => setTimeout(r, 1337));
 	if (await checkCaptchaSuccess())
 		return;
 }
 
-function generateNaturalCurve(start: {x: number, y: number}, end: {x: number, y: number}, steps: number): Array<{x: number, y: number}> {
-    const points = [];
+function generateNaturalCurve(start: {x: number, y: number}, end: {x: number, y: number}, steps: number): Array<Point> {
+    const points: Array<Point> = [];
     const controlPoint = {
         x: start.x + (end.x - start.x) * (0.3 + Math.random() * 0.4),
         y: start.y + (Math.random() * 12 - 6)
@@ -793,12 +851,12 @@ function generateNaturalCurve(start: {x: number, y: number}, end: {x: number, y:
         const t = i / steps;
         const x = Math.pow(1 - t, 2) * start.x + 2 * (1 - t) * t * controlPoint.x + Math.pow(t, 2) * end.x;
         const y = Math.pow(1 - t, 2) * start.y + 2 * (1 - t) * t * controlPoint.y + Math.pow(t, 2) * end.y;
-        points.push({ x, y });
+        points.push({ x: x, y: y });
     }
     return points;
 }
 
-function generateNaturalApproach(start: {x: number, y: number}, end: {x: number, y: number}, steps: number): Array<{x: number, y: number}> {
+function generateNaturalApproach(start: {x: number, y: number}, end: {x: number, y: number}, steps: number): Array<Point> {
     const control1 = {
         x: start.x + (end.x - start.x) * (0.2 + Math.random() * 0.2),
         y: start.y + (Math.random() * 15 - 5)
@@ -809,7 +867,7 @@ function generateNaturalApproach(start: {x: number, y: number}, end: {x: number,
         y: end.y + (Math.random() * 10 - 5)
     };
     
-    const points = [];
+    const points: Array<Point> = [];
     for (let i = 0; i <= steps; i++) {
         const t = i / steps;
         const x = Math.pow(1 - t, 3) * start.x +
@@ -822,15 +880,34 @@ function generateNaturalApproach(start: {x: number, y: number}, end: {x: number,
                   3 * (1 - t) * Math.pow(t, 2) * control2.y +
                   Math.pow(t, 3) * end.y;
         
-        points.push({ x, y });
+        points.push({ x: x, y: y });
     }
     return points;
 }
 
+function captchaIsPresent(): boolean {
+		for (let i = 0; i < CAPTCHA_PRESENCE_INDICATORS.length; i++) {
+			if (document.querySelector(CAPTCHA_PRESENCE_INDICATORS[i])) {
+				console.log("captcha present based on selector: " + CAPTCHA_PRESENCE_INDICATORS[i])
+				return true;
+			}
+		}
+		console.log("captcha not present")
+		return false
+	}
+
 let isCurrentSolve: boolean = false
 async function solveCaptchaLoop() {
+	console.log("starting captcha solve loop")
 	if (!isCurrentSolve) {
-		const _: Element = await waitForAnyElementInList([Wrappers.V1, Wrappers.V2])
+		if (captchaIsPresent()){
+			console.log("captcha detected by css selector")
+		} else {
+			console.log("waiting for captcha")
+			await findFirstElementToAppear(CAPTCHA_PRESENCE_INDICATORS)
+			console.log("captcha detected by mutation observer")
+		}
+
 		const captchaType: CaptchaType = await identifyCaptcha()
 
 		try {
@@ -886,7 +963,8 @@ async function solveCaptchaLoop() {
 
 
 // Api key is passed from extension via message
-let apiKey: string = localStorage.getItem("sadCaptchaKey");
+
+let apiKey = localStorage.getItem("sadCaptchaKey");
 try {
 	chrome.runtime.onMessage.addListener(
 		function(request: Request, sender, sendResponse) {
