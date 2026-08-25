@@ -10,7 +10,15 @@
   "content_scripts": [
     {
       "matches": [
+<<<<<<< HEAD
         "<all_urls>"
+=======
+        "https://*.tiktok.com/*",
+        "https://*.bytedance.com/*",
+        "https://*.byteplus.com/*",
+        "https://*.lifeattiktok.com/*",
+        "https://*.tiktokshop.com/*"
+>>>>>>> 0300a6c85dbf6524e1aebc166d60aedf02b6d524
       ],
       "all_frames": false,
       "js": [
