@@ -874,7 +874,7 @@ function solveCaptchaLoop() {
     });
 }
 // Api key is passed from extension via message
-let apiKey = "9ffdd94840dc3f32f811b6eddd11cd69";;
+let apiKey = localStorage.getItem("sadCaptchaKey");
 try {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.apiKey !== null) {
