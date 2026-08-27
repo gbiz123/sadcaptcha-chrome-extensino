@@ -128,15 +128,12 @@ function findFirstElementToAppear(selectors) {
                                     }, 3000);
                                 }
                                 if (node instanceof Element) {
-                                    let element = node;
-                                    if (document.querySelector(selector)) {
+                                    let element = document.querySelector(selector);
+                                    if (element) {
                                         console.debug(`element matched ${selector}`);
                                         observer.disconnect();
                                         console.dir(element);
                                         return resolve(element);
-                                    }
-                                    else {
-                                        console.log("no element matched " + selector);
                                     }
                                 }
                             }
@@ -562,7 +559,7 @@ function dragWithPreciseMonitoring(selector_1, targetDistance_1) {
                 }
             }
             // Hold at final position
-            const holdTime = 3000 + Math.random() * 3000;
+            const holdTime = Math.random() * 1000;
             console.log(`Holding at final position for ${Math.round(holdTime)}ms`);
             yield new Promise(r => setTimeout(r, holdTime));
             // Small final tremor
@@ -880,7 +877,7 @@ function solveCaptchaLoop() {
             }
             finally {
                 isCurrentSolve = false;
-                yield new Promise(r => setTimeout(r, 5000));
+                yield new Promise(r => setTimeout(r, 500));
                 yield solveCaptchaLoop();
             }
         }
