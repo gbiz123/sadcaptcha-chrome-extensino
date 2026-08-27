@@ -74,10 +74,18 @@ const CAPTCHA_PRESENCE_INDICATORS = [
     IconV2.SUBMIT_BUTTON,
     ShapesV2.SUBMIT_BUTTON,
     ShapesV2.IMAGE,
+    PuzzleV1.PIECE,
+    PuzzleV2.PIECE,
+    PuzzleV1.PUZZLE,
+    PuzzleV2.PUZZLE,
     PuzzleV1.UNIQUE_IDENTIFIER,
     PuzzleV2.UNIQUE_IDENTIFIER,
     RotateV2.UNIQUE_IDENTIFIER,
-    RotateV1.UNIQUE_IDENTIFIER
+    RotateV1.UNIQUE_IDENTIFIER,
+    RotateV2.INNER,
+    RotateV1.INNER,
+    RotateV2.OUTER,
+    RotateV1.OUTER,
 ];
 var CaptchaType;
 (function (CaptchaType) {
@@ -91,53 +99,58 @@ var CaptchaType;
     CaptchaType[CaptchaType["ICON_V2"] = 7] = "ICON_V2";
 })(CaptchaType || (CaptchaType = {}));
 function findFirstElementToAppear(selectors) {
-    return new Promise(resolve => {
-        const observer = new MutationObserver(mutations => {
-            for (const mutation of mutations) {
-                if (mutation.addedNodes === null)
-                    continue;
-                let addedNode = [];
-                mutation.addedNodes.forEach(node => addedNode.push(node));
-                for (const node of addedNode)
-                    for (const selector of selectors) {
-                        try {
-                            if (node instanceof HTMLIFrameElement) {
-                                let iframe = node;
-                                setTimeout(() => {
-                                    if (iframe.contentWindow) {
-                                        let iframeElement = iframe.contentWindow.document.body.querySelector(selector);
-                                        if (iframeElement) {
-                                            console.debug(`element matched ${selector} in iframe`);
-                                            observer.disconnect();
-                                            console.dir(iframeElement);
-                                            return resolve(iframeElement);
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise(resolve => {
+            const observer = new MutationObserver(mutations => {
+                for (const mutation of mutations) {
+                    if (mutation.addedNodes === null)
+                        continue;
+                    let addedNode = [];
+                    mutation.addedNodes.forEach(node => addedNode.push(node));
+                    for (const node of addedNode)
+                        for (const selector of selectors) {
+                            try {
+                                if (node instanceof HTMLIFrameElement) {
+                                    let iframe = node;
+                                    setTimeout(() => {
+                                        if (iframe.contentWindow) {
+                                            let iframeElement = iframe.contentWindow.document.body.querySelector(selector);
+                                            if (iframeElement) {
+                                                console.debug(`element matched ${selector} in iframe`);
+                                                observer.disconnect();
+                                                console.dir(iframeElement);
+                                                return resolve(iframeElement);
+                                            }
                                         }
+                                        else {
+                                            console.log(`no iframe with selector ${selector}, contentWindow was null`);
+                                        }
+                                    }, 3000);
+                                }
+                                if (node instanceof Element) {
+                                    let element = node;
+                                    if (document.querySelector(selector)) {
+                                        console.debug(`element matched ${selector}`);
+                                        observer.disconnect();
+                                        console.dir(element);
+                                        return resolve(element);
                                     }
                                     else {
-                                        console.log(`no iframe with selector ${selector}, contentWindow was null`);
+                                        console.log("no element matched " + selector);
                                     }
-                                }, 3000);
-                            }
-                            if (node instanceof Element) {
-                                let element = node;
-                                if (element.querySelector(selector)) {
-                                    console.debug(`element matched ${selector}`);
-                                    observer.disconnect();
-                                    console.dir(element);
-                                    return resolve(element);
                                 }
                             }
+                            catch (err) {
+                                console.log(`error occurred when finding element with css selector ${selector}, error was: ` + err);
+                                console.log("trying again");
+                            }
                         }
-                        catch (err) {
-                            console.log(`error occurred when finding element with css selector ${selector}, error was: ` + err);
-                            console.log("trying again");
-                        }
-                    }
-            }
-        });
-        observer.observe(CONTAINER, {
-            childList: true,
-            subtree: true
+                }
+            });
+            observer.observe(CONTAINER, {
+                childList: true,
+                subtree: true
+            });
         });
     });
 }

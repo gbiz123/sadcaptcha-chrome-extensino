@@ -74,10 +74,18 @@ const CAPTCHA_PRESENCE_INDICATORS = [
 	IconV2.SUBMIT_BUTTON,
 	ShapesV2.SUBMIT_BUTTON,
 	ShapesV2.IMAGE,
+	PuzzleV1.PIECE,
+	PuzzleV2.PIECE,
+	PuzzleV1.PUZZLE,
+	PuzzleV2.PUZZLE,
 	PuzzleV1.UNIQUE_IDENTIFIER,
 	PuzzleV2.UNIQUE_IDENTIFIER,
 	RotateV2.UNIQUE_IDENTIFIER,
-	RotateV1.UNIQUE_IDENTIFIER
+	RotateV1.UNIQUE_IDENTIFIER,
+	RotateV2.INNER,
+	RotateV1.INNER,
+	RotateV2.OUTER,
+	RotateV1.OUTER,
 ]
 
 type ShapesCaptchaResponse = {
@@ -116,7 +124,7 @@ enum CaptchaType {
 	ICON_V2
 }
 
-function findFirstElementToAppear(selectors: Array<string>): Promise<Element> {
+async function findFirstElementToAppear(selectors: Array<string>): Promise<Element> {
 		return new Promise(resolve => {
 			const observer: MutationObserver = new MutationObserver(mutations => {
 			for (const mutation of mutations) {
@@ -146,11 +154,13 @@ function findFirstElementToAppear(selectors: Array<string>): Promise<Element> {
 
 							if (node instanceof Element) {
 								let element = <Element>node
-								if (element.querySelector(selector)) {
+								if (document.querySelector(selector)) {
 									console.debug(`element matched ${selector}`)
 									observer.disconnect()
 									console.dir(element)
 									return resolve(element)
+								} else {
+									console.log("no element matched " + selector)
 								}
 							}
 						} catch (err) {
