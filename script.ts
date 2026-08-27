@@ -634,7 +634,7 @@ async function dragWithPreciseMonitoring(
 		}
 		
 		// Hold at final position
-		const holdTime = 3000 + Math.random() * 3000;
+		const holdTime = Math.random() * 1000;
 		console.log(`Holding at final position for ${Math.round(holdTime)}ms`);
 		await new Promise(r => setTimeout(r, holdTime));
 		
@@ -963,7 +963,7 @@ async function solveCaptchaLoop() {
 					console.log("restarting captcha loop")
 			} finally {
 				isCurrentSolve = false
-				await new Promise(r => setTimeout(r, 5000));
+				await new Promise(r => setTimeout(r, 500));
 				await solveCaptchaLoop()
 			}
 		}
