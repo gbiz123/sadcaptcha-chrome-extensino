@@ -153,14 +153,12 @@ async function findFirstElementToAppear(selectors: Array<string>): Promise<Eleme
 							}
 
 							if (node instanceof Element) {
-								let element = <Element>node
-								if (document.querySelector(selector)) {
+								let element = document.querySelector(selector)
+								if (element) {
 									console.debug(`element matched ${selector}`)
 									observer.disconnect()
 									console.dir(element)
 									return resolve(element)
-								} else {
-									console.log("no element matched " + selector)
 								}
 							}
 						} catch (err) {
