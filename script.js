@@ -53,9 +53,9 @@ const ShapesV1 = {
     UNIQUE_IDENTIFIER: ".captcha-disable-scroll .verify-captcha-submit-button"
 };
 const ShapesV2 = {
-    IMAGE: ".captcha-verify-container div.cap-relative img",
-    SUBMIT_BUTTON: ".captcha-verify-container .cap-relative button.cap-w-full",
-    UNIQUE_IDENTIFIER: ".captcha-verify-container .cap-relative button.cap-w-full"
+    IMAGE: ".captcha-verify-container div.cap-relative img, #captcha-verify-image",
+    SUBMIT_BUTTON: ".captcha-verify-container .cap-relative button.cap-w-full, .verify-captcha-submit-button",
+    UNIQUE_IDENTIFIER: ".captcha-verify-container .cap-relative button.cap-w-full, .verify-captcha-submit-button"
 };
 const IconV1 = {
     IMAGE: "#captcha-verify-image",
@@ -840,12 +840,12 @@ function solveCaptchaLoop() {
                     case CaptchaType.ROTATE_V1:
                         yield solveRotateV1();
                         break;
-                    case CaptchaType.SHAPES_V1:
-                        yield solveShapesV1();
-                        break;
-                    case CaptchaType.ICON_V1:
-                        yield solveIconV1();
-                        break;
+                    // case CaptchaType.SHAPES_V1:
+                    // 	await solveShapesV1()
+                    // 	break
+                    // case CaptchaType.ICON_V1:
+                    // 	await solveIconV1()
+                    // 	break
                     case CaptchaType.PUZZLE_V2:
                         yield solvePuzzleV2();
                         break;

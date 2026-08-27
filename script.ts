@@ -50,9 +50,9 @@ const ShapesV1 = {
 }
 
 const ShapesV2 = {
-	IMAGE: ".captcha-verify-container div.cap-relative img",
-	SUBMIT_BUTTON: ".captcha-verify-container .cap-relative button.cap-w-full" ,
-	UNIQUE_IDENTIFIER: ".captcha-verify-container .cap-relative button.cap-w-full" 
+	IMAGE: ".captcha-verify-container div.cap-relative img, #captcha-verify-image",
+	SUBMIT_BUTTON: ".captcha-verify-container .cap-relative button.cap-w-full, .verify-captcha-submit-button" ,
+	UNIQUE_IDENTIFIER: ".captcha-verify-container .cap-relative button.cap-w-full, .verify-captcha-submit-button" 
 }
 
 const IconV1 = {
@@ -930,12 +930,12 @@ async function solveCaptchaLoop() {
 				case CaptchaType.ROTATE_V1:
 					await solveRotateV1()
 					break
-				case CaptchaType.SHAPES_V1:
-					await solveShapesV1()
-					break
-				case CaptchaType.ICON_V1:
-					await solveIconV1()
-					break
+				// case CaptchaType.SHAPES_V1:
+				// 	await solveShapesV1()
+				// 	break
+				// case CaptchaType.ICON_V1:
+				// 	await solveIconV1()
+				// 	break
 				case CaptchaType.PUZZLE_V2:
 					await solvePuzzleV2()
 					break
